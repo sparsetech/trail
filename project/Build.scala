@@ -7,8 +7,9 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Build extends sbt.Build {
   object Dependencies {
-    val ScalaTest = "3.0.0-M14"
-    val MetaDocs  = "0.1.1-SNAPSHOT"
+    val ScalaTest  = "3.0.0-M14"
+    val MetaDocs   = "0.1.1-SNAPSHOT"
+    val ScalaJsDom = "0.8.2"
   }
 
   val SharedSettings = Seq(
@@ -53,8 +54,10 @@ object Build extends sbt.Build {
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
     .jsSettings(
-      libraryDependencies +=
-        "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test",
+      libraryDependencies ++= Seq(
+        "org.scala-js" %%% "scalajs-dom" % Dependencies.ScalaJsDom,
+        "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test"
+      ),
 
       /* Use io.js for faster compilation of test cases */
       scalaJSStage in Global := FastOptStage
