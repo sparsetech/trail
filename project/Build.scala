@@ -9,6 +9,7 @@ object Build extends sbt.Build {
   object Dependencies {
     val ScalaTest  = "3.0.0-M15"
     val MetaDocs   = "0.1.1"
+    val Shapeless  = "2.2.5"
     val ScalaJsDom = "0.8.2"
   }
 
@@ -56,6 +57,7 @@ object Build extends sbt.Build {
     .jsSettings(
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % Dependencies.ScalaJsDom,
+        "com.chuusai" %%% "shapeless" % Dependencies.Shapeless,
         "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test"
       ),
 
@@ -63,14 +65,16 @@ object Build extends sbt.Build {
       scalaJSStage in Global := FastOptStage
     )
     .jvmSettings(
-      libraryDependencies +=
+      libraryDependencies ++= Seq(
+        "com.chuusai" %% "shapeless" % Dependencies.Shapeless,
         "org.scalatest" %% "scalatest" % Dependencies.ScalaTest % "test"
+      )
     )
 
   lazy val js = metaRouter.js
   lazy val jvm = metaRouter.jvm
 
-  lazy val manual = project.in(file("manual"))
+  /*lazy val manual = project.in(file("manual"))
     .dependsOn(jvm)
     .enablePlugins(BuildInfoPlugin)
     .settings(SharedSettings: _*)
@@ -81,5 +85,5 @@ object Build extends sbt.Build {
         "org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r"),
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "pl.metastack.metarouter",
-      name := "MetaRouter manual")
+      name := "MetaRouter manual")*/
 }

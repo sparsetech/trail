@@ -7,9 +7,9 @@ import org.scalajs.dom
 trait Router {
   var currentPage = Option.empty[Page]
 
-  def dispatch(route: Route, attach: Boolean)
+  def dispatch(route: RouteOld, attach: Boolean)
 
-  def replaceUrl(route: Route): Unit = {
+  def replaceUrl(route: RouteOld): Unit = {
     dom.document.body.scrollTop = 0
     dom.window.history.pushState("", "", route.url)
   }
@@ -22,7 +22,7 @@ trait Router {
     page.rendered()
   }
 
-  def parseRoute(href: String): Route = {
+  def parseRoute(href: String): RouteOld = {
     val uri = href.split('/').drop(3).toSeq.mkString("/").split('?')
     val (path, args) = (uri.head, uri.tail.headOption)
     val parsedArgs = args.map { a =>
@@ -34,7 +34,7 @@ trait Router {
       }.toSeq
     }.getOrElse(Seq.empty).toMap
 
-    Route(path, parsedArgs)
+    RouteOld(path, parsedArgs)
   }
 
   def register() {
