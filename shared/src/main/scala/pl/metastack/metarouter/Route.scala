@@ -28,7 +28,6 @@ object Route {
 
     def matches(s: String): Either[String, InstantiatedRoute[D,A]] = {
       import shapeless.HList.ListCompat._
-      import scala.collection.immutable.::
 
       def m[R <: HList](r: R, s: Seq[String]): Either[String, HList] =
         (r, s) match {
