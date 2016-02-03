@@ -1,6 +1,7 @@
 package pl.metastack.metarouter
 
 import org.scalatest._
+import shapeless.test.illTyped
 
 class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
@@ -28,6 +29,10 @@ class RouteTests extends FreeSpec with Matchers {
     "when there are no Args" - {
       "should compile" in {
         val r = Root / "asdf"
+      }
+      "fill() with arguments should not compile" in {
+        val r = Root / "asdf"
+        illTyped("r.fill(1)")
       }
       "can compute its hashcode consistently" in {
         val r1 = Root / "asdf"
