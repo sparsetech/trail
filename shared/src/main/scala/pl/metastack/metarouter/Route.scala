@@ -41,7 +41,10 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
     ): InstantiatedRoute[ROUTE, L] =
       InstantiatedRoute[ROUTE, L](this, hl.to(args))
 
-  def matches(s: String): Either[String, InstantiatedRoute[ROUTE, HList]] = {
+  def matches[L <: HList](s: String)
+    (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
+    Either[String, InstantiatedRoute[ROUTE, L]] =
+  {
     import shapeless.HList.ListCompat._
 
     def m[R <: HList](r: R, s: Seq[String]): Either[String, HList] =
@@ -59,7 +62,9 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
       }
 
     m[ROUTE](pathElements, Route.split(s)).right.map { x =>
-      InstantiatedRoute(this, x)
+      // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
+      // Based on the logic in the above match it will be correct or it's not a Right Either.
+      InstantiatedRoute(this, x.asInstanceOf[L])
     }
   }
 
