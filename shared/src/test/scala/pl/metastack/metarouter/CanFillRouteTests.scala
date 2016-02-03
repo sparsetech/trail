@@ -50,7 +50,7 @@ class CanFillRouteTests extends WordSpec with Matchers  {
     "multiple Args" should {
       "create InstantiatedRoute" in {
         val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
-        r.fill("Route", 1)
+        r.fillN("Route", 1)
       }
       "not compile with wrong argument order" in {
         """
@@ -92,8 +92,8 @@ class CanFillRouteTests extends WordSpec with Matchers  {
     "custom Arg element" should {
       case class FooBar(foo: String)
       implicit object FooParseableArg extends ParseableArg[FooBar] {
-        def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar.apply)
-        def urlEncode(s: FooBar): String = s.foo
+        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
+        override def urlEncode(s: FooBar) = s.foo
       }
       "create an InstantiatedRoute" in {
         val r = Root / Arg[FooBar]("asdf")

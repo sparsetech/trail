@@ -19,13 +19,10 @@ object Route {
     implicit def default[T] = at[T](x => HNil)
   }
   object ConvertArgs extends Drop {
-    implicit def caseSome[T] = at[Arg[T]].apply[T :: HNil](x => null.asInstanceOf[T] :: HNil)
+    implicit def caseArg[T] = at[Arg[T]].apply[T :: HNil](x => null.asInstanceOf[T] :: HNil)
   }
 
   implicit class CanFillRoute[D <: HList, A <: HList](val d: Route[D])(implicit val f: FlatMapper.Aux[ConvertArgs.type, D, A]) extends ProductArgs {
-    def fill = this
-    def applyProduct(it: A): InstantiatedRoute[D, A] = InstantiatedRoute[D, A](d, it)
-
     def matches(s: String): Either[String, InstantiatedRoute[D,A]] = {
       import shapeless.HList.ListCompat._
 
@@ -55,6 +52,24 @@ object Route {
 }
 
 case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
+  def fill()
+           (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
+  InstantiatedRoute[ROUTE, HNil] =
+    InstantiatedRoute[ROUTE, HNil](this, HNil)
+
+  def fill[T]
+    (arg: T)
+    (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, T :: HNil]):
+  InstantiatedRoute[ROUTE, T :: HNil] =
+    InstantiatedRoute[ROUTE, T :: HNil](this, arg :: HNil)
+
+  def fillN[L <: HList, TP <: Product]
+    (args: TP)
+    (implicit hl: Generic.Aux[TP, L],
+              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]
+    ): InstantiatedRoute[ROUTE, L] =
+      InstantiatedRoute[ROUTE, L](this, hl.to(args))
+
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
 

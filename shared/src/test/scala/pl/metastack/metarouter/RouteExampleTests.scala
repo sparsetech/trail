@@ -30,7 +30,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val Details  = Root / "details" / Arg[Int]("contentId")
     val UserInfo = Root / "user" / Arg[String]("user") / Arg[Boolean]("details")
 
-    val userInfo = UserInfo.fill("bob", false)
+    val userInfo = UserInfo.fillN("bob", false)
 
     assert(userInfo.url === "/user/bob/false")
     assert(userInfo.route === UserInfo)

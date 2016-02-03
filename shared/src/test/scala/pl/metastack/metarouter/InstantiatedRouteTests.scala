@@ -33,7 +33,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
     "multiple Args" should {
       "return a url of the static path elements with the args filled" in {
         val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
-        assert(r.fill("route", 1).url === "/route/asdf/1")
+        assert(r.fillN("route", 1).url === "/route/asdf/1")
       }
     }
     "custom path element" should {
