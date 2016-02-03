@@ -1,9 +1,8 @@
 package pl.metastack.metarouter
 
 import org.scalatest._
-import pl.metastack.metarouter._
 
-class RouteTests extends FreeSpec with Matchers  {
+class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
@@ -146,7 +145,7 @@ class RouteTests extends FreeSpec with Matchers  {
     "when using a custom path element" - {
       case class FooBar(foo: String)
       implicit object FooStaticElement extends StaticElement[FooBar] {
-        def urlEncode(value: FooBar): String = value.foo
+        override def urlEncode(value: FooBar) = value.foo
       }
       "should compile" in {
         val r = Root / FooBar("asdf")
@@ -155,8 +154,8 @@ class RouteTests extends FreeSpec with Matchers  {
     "when using a custom Arg element" - {
       case class FooBar(foo: String)
       implicit object FooParseableArg extends ParseableArg[FooBar] {
-        def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar.apply)
-        def urlEncode(s: FooBar): String = s.foo
+        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
+        override def urlEncode(s: FooBar) = s.foo
       }
       "should compile" in {
         val r = Root / Arg[FooBar]("asdf")
