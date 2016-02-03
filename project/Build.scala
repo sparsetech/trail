@@ -74,7 +74,7 @@ object Build extends sbt.Build {
   lazy val js = metaRouter.js
   lazy val jvm = metaRouter.jvm
 
-  /*lazy val manual = project.in(file("manual"))
+  lazy val manual = project.in(file("manual"))
     .dependsOn(jvm)
     .enablePlugins(BuildInfoPlugin)
     .settings(SharedSettings: _*)
@@ -85,5 +85,5 @@ object Build extends sbt.Build {
         "org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r"),
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "pl.metastack.metarouter",
-      name := "MetaRouter manual")*/
+      name := "MetaRouter manual")
 }
