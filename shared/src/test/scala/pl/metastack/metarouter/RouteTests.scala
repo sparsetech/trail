@@ -6,7 +6,7 @@ class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
-      val r2 = (Root / "fdas").fill()
+      val r2 = r1.fill()
       assert(!r1.canEqual(r2), "r1 should not be comparable to r2")
     }
     "cannot equal a non-route" in {
