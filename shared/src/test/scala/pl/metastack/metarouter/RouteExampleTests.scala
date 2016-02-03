@@ -3,7 +3,7 @@ package pl.metastack.metarouter
 import org.scalatest._
 
 import pl.metastack.metarouter._
-import shapeless.{HNil, ::}
+import shapeless.HNil
 
 class RouteExampleTests extends FlatSpec with Matchers {
   "A Simple example" should "just work" ignore {
@@ -26,7 +26,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
     matchingRoutes == Seq(UserInfo)*/
   }
 
-  "A Modified Simple example" should "just work" ignore {
+  "A Modified Simple example" should "just work" in {
     val Details  = Root / "details" / Arg[Int]("contentId")
     val UserInfo = Root / "user" / Arg[String]("user") / Arg[Boolean]("details")
 
@@ -40,23 +40,25 @@ class RouteExampleTests extends FlatSpec with Matchers {
     assert(Route.parse("/a/b/c") === (Root / "a" / "b" / "c").fill())
 
     assert(UserInfo.matches("/user/bob/true").isRight)
-    assert(false) //TODO: add a test here to check if the arguments parsed correctly
+    val parsedRoute = UserInfo.matches("/user/bob/true").right.get
+    assert(parsedRoute.route === UserInfo)
+    assert(parsedRoute.data == "bob" :: true :: HNil)
 
     val i1 = UserInfo.matches("/user/bob")
     assert(i1.isLeft)
-    assert(i1.left.get === "Path is to short.")
+    assert(i1.left.get === "Path is too short.")
 
     val i2 = UserInfo.matches("/user/bob/true/true")
     assert(i2.isLeft)
-    assert(i2.left.get === "Path is to long.")
+    assert(i2.left.get === "Path is too long.")
 
     val i3 = UserInfo.matches("/user/bob/1")
     assert(i3.isLeft)
-    assert(i3.left.get === """Argument "details" could not parse "1".""")
+    assert(i3.left.get === "Argument `details` could not parse `1`.")
 
     val i4 = UserInfo.matches("/usr/bob/1")
     assert(i4.isLeft)
-    assert(i4.left.get === """Path Element "user" did not match "usr"""")
+    assert(i4.left.get === "Path element `user` did not match `usr`")
 
     ///(Root / "user" / "bob").errorMessage(UserInfo) == Some("`details` not specified")
 

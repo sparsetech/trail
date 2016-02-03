@@ -22,32 +22,6 @@ object Route {
     implicit def caseArg[T] = at[Arg[T]].apply[T :: HNil](x => null.asInstanceOf[T] :: HNil)
   }
 
-  implicit class CanFillRoute[D <: HList, A <: HList](val d: Route[D])(implicit val f: FlatMapper.Aux[ConvertArgs.type, D, A]) extends ProductArgs {
-    def matches(s: String): Either[String, InstantiatedRoute[D,A]] = {
-      import shapeless.HList.ListCompat._
-
-      def m[R <: HList](r: R, s: Seq[String]): Either[String, HList] =
-        (r, s) match {
-          case (HNil, Nil) => Right(HNil)
-          case (_, Nil) => Left(s"Path is too short.")
-          case (HNil, _) => Left(s"Path is too long.")
-          case ((rH: String) #: rT, sH :: sT) if rH == sH => m(rT, sT)
-          case ((rH: String) #: rT, sH :: sT) => Left(s"Path element `$rH` did not match `$sH`")
-          case ((arg: Arg[_]) #: rT, sH :: sT) =>
-            arg.parseableArg.urlDecode(sH) match {
-              case Some(decoded) => m(rT, sT).right.map(decoded :: _)
-              case _ => Left[String, HNil](s"Argument `${arg.name}` could not parse `$sH`.")
-            }
-        }
-
-      m[D](d.pathElements, split(s)).right.map { x =>
-        // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
-        // Based on the logic in the above match it will be correct or it's not a Right Either.
-        InstantiatedRoute(d, x.asInstanceOf[A])
-      }
-    }
-  }
-
   val Root = Route[HNil](HNil)
 }
 
@@ -69,6 +43,28 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
               map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]
     ): InstantiatedRoute[ROUTE, L] =
       InstantiatedRoute[ROUTE, L](this, hl.to(args))
+
+  def matches(s: String): Either[String, InstantiatedRoute[ROUTE, HList]] = {
+    import shapeless.HList.ListCompat._
+
+    def m[R <: HList](r: R, s: Seq[String]): Either[String, HList] =
+      (r, s) match {
+        case (HNil, Nil) => Right(HNil)
+        case (_, Nil) => Left(s"Path is too short.")
+        case (HNil, _) => Left(s"Path is too long.")
+        case ((rH: String) #: rT, sH :: sT) if rH == sH => m(rT, sT)
+        case ((rH: String) #: rT, sH :: sT) => Left(s"Path element `$rH` did not match `$sH`")
+        case ((arg: Arg[_]) #: rT, sH :: sT) =>
+          arg.parseableArg.urlDecode(sH) match {
+            case Some(decoded) => m(rT, sT).right.map(decoded :: _)
+            case _ => Left[String, HNil](s"Argument `${arg.name}` could not parse `$sH`.")
+          }
+      }
+
+    m[ROUTE](pathElements, Route.split(s)).right.map { x =>
+      InstantiatedRoute(this, x)
+    }
+  }
 
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
