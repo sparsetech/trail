@@ -30,14 +30,22 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
     InstantiatedRoute[ROUTE, HNil] =
       InstantiatedRoute[ROUTE, HNil](this, HNil)
 
-  def fill[T](arg: T)
-    (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, T :: HNil]):
-    InstantiatedRoute[ROUTE, T :: HNil] =
+  def fill[T, Params <: HList, ParamsCount <: Nat](arg: T)
+    (implicit
+      ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params],
+      ev2: Length.Aux[Params, ParamsCount],
+      ev3: ParamsCount =:= Nat._1,
+      ev4: Params =:= (T :: HNil)
+    ): InstantiatedRoute[ROUTE, T :: HNil] =
       InstantiatedRoute[ROUTE, T :: HNil](this, arg :: HNil)
 
-  def fillN[L <: HList, TP <: Product](args: TP)
-    (implicit hl: Generic.Aux[TP, L],
-              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]
+  def fillN[L <: HList, TP <: Product, Params <: HList, ParamsCount <: Nat](args: TP)
+    (implicit
+      ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params],
+      ev2: Length.Aux[Params, ParamsCount],
+      ev3: ParamsCount <:!< Nat._1,
+      hl: Generic.Aux[TP, L],
+      ev4: Params =:= L
     ): InstantiatedRoute[ROUTE, L] =
       InstantiatedRoute[ROUTE, L](this, hl.to(args))
 
