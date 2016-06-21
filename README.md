@@ -7,6 +7,7 @@ MetaRouter is a routing library for Scala and Scala.js.
 ## Links
 * [Single-page manual](http://metastack.pl/metarouter/latest.html)
 * [Multi-page manual](http://metastack.pl/metarouter/latest/index.html)
+* [ScalaDoc](https://www.javadoc.io/doc/pl.metastack/metarouter_2.11/)
 * [Versions](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.metastack%22%20AND%20a%3A%22metarouter_2.11%22)
 
 ## License
