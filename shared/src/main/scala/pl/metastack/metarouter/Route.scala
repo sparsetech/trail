@@ -25,7 +25,7 @@ object Route {
   val Root = Route[HNil](HNil)
 }
 
-case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
+case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
   def fill()(implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
     InstantiatedRoute[ROUTE, HNil] =
       InstantiatedRoute[ROUTE, HNil](this, HNil)
@@ -111,7 +111,7 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
   }
 }
 
-case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (val route: Route[ROUTE], val data: DATA) {
+case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) {
   def url(): String = {
     def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
       (r, a) match {
