@@ -23,7 +23,7 @@ trait Router {
   }
 
   def parseRoute(href: String): RouteOld = {
-    val uri = href.split('/').drop(3).toSeq.mkString("/").split('?')
+    val uri = href.takeWhile(_ != '#').split('/').drop(3).toSeq.mkString("/").split('?')
     val (path, args) = (uri.head, uri.tail.headOption)
     val parsedArgs = args.map { a =>
       val split = a.split('&')
