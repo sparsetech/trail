@@ -1,5 +1,6 @@
 package pl.metastack.metarouter
 
+/*
 import scala.scalajs.js.URIUtils
 
 import org.scalajs.dom
@@ -46,4 +47,4 @@ trait Router {
       dispatch(parseRoute(dom.document.location.href), attach = false)
     }
   }
-}
+}*/
