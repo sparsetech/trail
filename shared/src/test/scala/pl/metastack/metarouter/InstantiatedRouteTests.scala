@@ -50,7 +50,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
     "custom Arg element" should {
       case class FooBar(foo: String)
       implicit object FooParseableArg extends ParseableArg[FooBar] {
-        def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar.apply)
+        def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar)
         def urlEncode(s: FooBar): String = s.foo
       }
       "create url" in {
