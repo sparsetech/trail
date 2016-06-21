@@ -7,16 +7,19 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Build extends sbt.Build {
   object Dependencies {
-    val ScalaTest  = "3.0.0-M15"
+    val ScalaTest  = "3.0.0-RC2"
     val MetaDocs   = "0.1.1"
-    val Shapeless  = "2.2.5"
-    val ScalaJsDom = "0.8.2"
+    val Shapeless  = "2.3.1"
+    val ScalaJsDom = "0.9.1"
+    val Scala2_11  = "2.11.8"
+    val Scala2_12  = "2.12.0-M4"
   }
 
   val SharedSettings = Seq(
     name := "MetaRouter",
     organization := "pl.metastack",
-    scalaVersion := "2.11.7",
+    scalaVersion := Dependencies.Scala2_11,
+    crossScalaVersions := Seq(Dependencies.Scala2_12, Dependencies.Scala2_11),
     scalacOptions := Seq(
       "-unchecked",
       "-deprecation",
