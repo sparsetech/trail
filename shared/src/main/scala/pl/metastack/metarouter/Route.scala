@@ -25,6 +25,27 @@ object Route {
   val Root = Route[HNil](HNil)
 }
 
+class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
+  def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
+    (implicit gen: Generic.Aux[T, L],
+              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
+    val f: String => Option[Any] = other.parse(_)
+    new ComposedRoute(parsers :+ f)
+  }
+
+  def parse(uri: String): Option[Any] =
+    parsers.foldLeft(Option.empty[Any]) { case (acc, cur) =>
+      acc.orElse(cur(uri))
+    }
+}
+
+object ComposedRoute {
+  def apply[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
+    (implicit gen: Generic.Aux[T, L],
+              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
+    new ComposedRoute(Seq(route.parse(_)))
+}
+
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
   def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
     InstantiatedRoute[ROUTE, L] =
