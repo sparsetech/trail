@@ -13,7 +13,11 @@ object Route {
     InstantiatedRoute(r, HNil)
   }
 
-  def split(s: String): List[String] = s.stripPrefix("/").split('/').toList
+  def split(s: String): List[String] = {
+    val x = s.stripPrefix("/")
+    if (x.isEmpty) Nil
+    else x.split('/').toList
+  }
 
   trait Drop extends Poly1 {
     implicit def default[T] = at[T](x => HNil)

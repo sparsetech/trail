@@ -26,10 +26,12 @@ class RouteExampleTests extends FlatSpec with Matchers {
     matchingRoutes == Seq(UserInfo)*/
   }
 
-  "A Modified Simple example" should "just work" in {
-    val Details  = Root / "details" / Arg[Int]
-    val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
+  "Matching root" should "just work" in {
+    assert(Root.matches("/").isRight)
+  }
 
+  "A Modified Simple example" should "just work" in {
+    val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
     val userInfo = UserInfo.fillN("bob", false)
 
     assert(userInfo.url === "/user/bob/false")

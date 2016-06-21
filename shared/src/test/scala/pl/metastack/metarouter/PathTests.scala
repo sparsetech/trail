@@ -7,6 +7,10 @@ class PathTests extends FunSuite {
     assert(PathParser.parse("http://example.com/test") == Path("/test"))
   }
 
+  test("Parse relative URL (root)") {
+    assert(PathParser.parse("/") == Path("/"))
+  }
+
   test("Parse relative URL") {
     assert(PathParser.parse("/test") == Path("/test"))
   }
