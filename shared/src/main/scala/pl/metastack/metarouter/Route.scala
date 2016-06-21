@@ -25,7 +25,23 @@ object Route {
   val Root = Route[HNil](HNil)
 }
 
+case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
+  def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
+    InstantiatedRoute[ROUTE, L] =
+      InstantiatedRoute[ROUTE, L](route, gen.to(value))
+
+  def parse[L <: HList](uri: String)
+                       (implicit gen: Generic.Aux[T, L],
+                                 map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
+    route.matches(uri) match {
+      case Left(_) => None
+      case Right(parsed) => Some(gen.from(parsed.data))
+    }
+}
+
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
+  def as[T]: MappedRoute[ROUTE, T] = MappedRoute[ROUTE, T](this)
+
   def fill()(implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
     InstantiatedRoute[ROUTE, HNil] =
       InstantiatedRoute[ROUTE, HNil](this, HNil)

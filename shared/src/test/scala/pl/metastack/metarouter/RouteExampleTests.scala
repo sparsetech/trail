@@ -66,4 +66,15 @@ class RouteExampleTests extends FlatSpec with Matchers {
     //val matchingRoutes = Seq[Route[_]] = router.filter(userInfo)
     //matchingRoutes == Seq(UserInfo)
   }
+
+  "Mapped route" should "just work" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = (Root / "user" / Arg[String] / Arg[Boolean]).as[UserInfo]
+
+    val r = userInfo(UserInfo("hello", false))  // InstantiatedRoute
+    assert(r == userInfo.route.fillN("hello", false))
+
+    assert(userInfo.parse("/user/hello/false")
+      .contains(UserInfo("hello", false)))
+  }
 }
