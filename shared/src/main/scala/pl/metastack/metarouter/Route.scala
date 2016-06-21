@@ -26,38 +26,6 @@ object Route {
   val Root = Route[HNil](HNil)
 }
 
-class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
-  def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
-    (implicit gen: Generic.Aux[T, L],
-              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
-    val f: String => Option[Any] = other.parse(_)
-    new ComposedRoute(parsers :+ f)
-  }
-
-  def parse(uri: String): Option[Any] =
-    parsers.foldLeft(Option.empty[Any]) { case (acc, cur) =>
-      acc.orElse(cur(uri))
-    }
-}
-
-object ComposedRoute {
-  def apply[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
-    (implicit gen: Generic.Aux[T, L],
-              map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
-    new ComposedRoute(Seq(route.parse(_)))
-}
-
-case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
-  def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
-    InstantiatedRoute[ROUTE, L] =
-      InstantiatedRoute[ROUTE, L](route, gen.to(value))
-
-  def parse[L <: HList](uri: String)
-                       (implicit gen: Generic.Aux[T, L],
-                                 map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
-    route.parse(uri).map(parsed => gen.from(parsed.data))
-}
-
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
   def as[T]: MappedRoute[ROUTE, T] = MappedRoute[ROUTE, T](this)
 
@@ -166,4 +134,36 @@ case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] 
     }
 
   override def hashCode(): Int = url().hashCode
+}
+
+case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
+  def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
+  InstantiatedRoute[ROUTE, L] =
+    InstantiatedRoute[ROUTE, L](route, gen.to(value))
+
+  def parse[L <: HList](uri: String)
+                       (implicit gen: Generic.Aux[T, L],
+                        map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
+    route.parse(uri).map(parsed => gen.from(parsed.data))
+}
+
+class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
+  def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
+                                           (implicit gen: Generic.Aux[T, L],
+                                            map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
+    val f: String => Option[Any] = other.parse(_)
+    new ComposedRoute(parsers :+ f)
+  }
+
+  def parse(uri: String): Option[Any] =
+    parsers.foldLeft(Option.empty[Any]) { case (acc, cur) =>
+      acc.orElse(cur(uri))
+    }
+}
+
+object ComposedRoute {
+  def apply[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
+                                          (implicit gen: Generic.Aux[T, L],
+                                           map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
+    new ComposedRoute(Seq(route.parse(_)))
 }
