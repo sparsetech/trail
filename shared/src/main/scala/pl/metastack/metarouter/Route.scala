@@ -58,10 +58,7 @@ case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
   def parse[L <: HList](uri: String)
                        (implicit gen: Generic.Aux[T, L],
                                  map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
-    route.matches(uri) match {
-      case Left(_) => None
-      case Right(parsed) => Some(gen.from(parsed.data))
-    }
+    route.parse(uri).map(parsed => gen.from(parsed.data))
 }
 
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
@@ -90,29 +87,27 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
     ): InstantiatedRoute[ROUTE, L] =
       InstantiatedRoute[ROUTE, L](this, hl.to(args))
 
-  def matches[L <: HList](s: String)
+  def parse[L <: HList](s: String)
     (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
-    Either[String, InstantiatedRoute[ROUTE, L]] =
+    Option[InstantiatedRoute[ROUTE, L]] =
   {
     import shapeless.HList.ListCompat._
 
-    def m[R <: HList](r: R, s: Seq[String]): Either[String, HList] =
+    def m[R <: HList](r: R, s: Seq[String]): Option[HList] =
       (r, s) match {
-        case (HNil, Nil) => Right(HNil)
-        case (_, Nil) => Left(s"Path is too short.")
-        case (HNil, _) => Left(s"Path is too long.")
-        case ((rH: String) #: rT, sH :: sT) if rH == sH => m(rT, sT)
-        case ((rH: String) #: rT, sH :: sT) => Left(s"Path element `$rH` did not match `$sH`")
+        case (HNil, Nil) => Some(HNil)
+        case (_,    Nil) => None
+        case (HNil, _)   => None
+        case ((rH: String)  #: rT, sH :: sT) if rH == sH => m(rT, sT)
+        case ((rH: String)  #: rT, sH :: sT) => None
         case ((arg: Arg[_]) #: rT, sH :: sT) =>
-          arg.parseableArg.urlDecode(sH) match {
-            case Some(decoded) => m(rT, sT).right.map(decoded :: _)
-            case _ => Left[String, HNil](s"Argument `$sH` could not be parsed")
+          arg.parseableArg.urlDecode(sH).flatMap { decoded =>
+            m(rT, sT).map(decoded :: _)
           }
       }
 
-    m[ROUTE](pathElements, Route.split(s)).right.map { x =>
+    m[ROUTE](pathElements, Route.split(s)).map { x =>
       // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
-      // Based on the logic in the above match it will be correct or it's not a Right Either.
       InstantiatedRoute(this, x.asInstanceOf[L])
     }
   }
