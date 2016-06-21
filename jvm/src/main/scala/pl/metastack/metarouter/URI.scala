@@ -1,6 +1,6 @@
 package pl.metastack.metarouter
 
-import java.net.URLEncoder
+import java.net.{URLDecoder, URLEncoder}
 
 object URI {
   /** @see http://stackoverflow.com/questions/607176/ */
@@ -12,4 +12,6 @@ object URI {
       .replaceAll("\\%28", "(")
       .replaceAll("\\%29", ")")
       .replaceAll("\\%7E", "~")
+
+  def decode(s: String): String = URLDecoder.decode(s, "UTF-8")
 }
