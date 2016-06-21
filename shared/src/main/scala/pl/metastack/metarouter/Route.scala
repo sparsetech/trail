@@ -65,7 +65,7 @@ case class Route[ROUTE <: HList] private (val pathElements: ROUTE) {
         case ((arg: Arg[_]) #: rT, sH :: sT) =>
           arg.parseableArg.urlDecode(sH) match {
             case Some(decoded) => m(rT, sT).right.map(decoded :: _)
-            case _ => Left[String, HNil](s"Argument `${arg.name}` could not parse `$sH`.")
+            case _ => Left[String, HNil](s"Argument `$sH` could not be parsed")
           }
       }
 
@@ -168,7 +168,7 @@ trait StaticElement[T] extends PathElement[T] {
   def toPathElement(t: T): String = urlEncode(t)
 }
 
-case class Arg[T](name: String)(implicit val parseableArg: ParseableArg[T])
+case class Arg[T](implicit val parseableArg: ParseableArg[T])
 
 trait ParseableArg[T] {
   def urlDecode(s: String): Option[T]

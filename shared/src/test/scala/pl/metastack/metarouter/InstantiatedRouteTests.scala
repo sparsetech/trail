@@ -23,16 +23,16 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
     }
     "one Arg" should {
       "return a url of the static path elements with the args filled" in {
-        val route = Root / "asdf" / Arg[Int]("asf")
+        val route = Root / "asdf" / Arg[Int]
         assert(route.fill(1).url === "/asdf/1")
 
-        val route2 = Root / "asdf" / Arg[Int]("asf") / true
+        val route2 = Root / "asdf" / Arg[Int] / true
         assert(route2.fill(1).url === "/asdf/1/true")
       }
     }
     "multiple Args" should {
       "return a url of the static path elements with the args filled" in {
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         assert(r.fillN("route", 1).url === "/route/asdf/1")
       }
     }
@@ -54,7 +54,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
         def urlEncode(s: FooBar): String = s.foo
       }
       "create url" in {
-        val r = Root / Arg[FooBar]("asdf")
+        val r = Root / Arg[FooBar]
         val i = r.fill(FooBar("dasd"))
         assert(i.url === "/dasd")
       }

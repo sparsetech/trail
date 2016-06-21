@@ -27,8 +27,8 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "A Modified Simple example" should "just work" in {
-    val Details  = Root / "details" / Arg[Int]("contentId")
-    val UserInfo = Root / "user" / Arg[String]("user") / Arg[Boolean]("details")
+    val Details  = Root / "details" / Arg[Int]
+    val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
     val userInfo = UserInfo.fillN("bob", false)
 
@@ -54,7 +54,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
     val i3 = UserInfo.matches("/user/bob/1")
     assert(i3.isLeft)
-    assert(i3.left.get === "Argument `details` could not parse `1`.")
+    assert(i3.left.get === "Argument `1` could not be parsed")
 
     val i4 = UserInfo.matches("/usr/bob/1")
     assert(i4.isLeft)

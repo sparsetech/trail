@@ -31,44 +31,44 @@ class CanFillRouteTests extends WordSpec with Matchers  {
     }
     "one Arg" should {
       "create InstantiatedRoute" in {
-        val route = Root / "asdf" / Arg[Int]("asf")
+        val route = Root / "asdf" / Arg[Int]
         route.fill(1)
       }
       "not compile with InstantiatedRoute with invalid arg type" in {
         """
-        val r = Root / "asdf" / Arg[Int]("asf")
+        val r = Root / "asdf" / Arg[Int]
         r.fill("Route")
         """ shouldNot typeCheck
       }
       "not compile with InstantiatedRoute with invalid arg number" in {
         """
-        val r = Root / "asdf" / Arg[Int]("asf")
+        val r = Root / "asdf" / Arg[Int]
         r.fill("Route", 1)
         """ shouldNot typeCheck
       }
     }
     "multiple Args" should {
       "create InstantiatedRoute" in {
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         r.fillN("Route", 1)
       }
       "not compile with wrong argument order" in {
         """
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         r.fill(1, "Route")
         """ shouldNot typeCheck
       }
       "not compile with wrong argument number" in {
         """
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         r.fill(1, 1, 1)
         """ shouldNot typeCheck
         """
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         r.fill(1)
         """ shouldNot typeCheck
         """
-        val r = Root / Arg[String]("db") / "asdf" / Arg[Int]("asf")
+        val r = Root / Arg[String] / "asdf" / Arg[Int]
         r.fill("Route", 1, 1)
         """ shouldNot typeCheck
       }
@@ -96,7 +96,7 @@ class CanFillRouteTests extends WordSpec with Matchers  {
         override def urlEncode(s: FooBar) = s.foo
       }
       "create an InstantiatedRoute" in {
-        val r = Root / Arg[FooBar]("asdf")
+        val r = Root / Arg[FooBar]
         val i = r.fill(FooBar("dasd"))
         import shapeless._
         assert(i.data === FooBar("dasd") :: HNil)
