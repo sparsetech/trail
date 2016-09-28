@@ -1,7 +1,11 @@
 package pl.metastack.metarouter
 
+import cats.kernel.Monoid
+import cats.{Id => _, _}
 import org.scalatest._
 import shapeless.test.illTyped
+import shapeless._
+import shapeless.poly._
 
 class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
@@ -15,6 +19,27 @@ class RouteTests extends FreeSpec with Matchers {
       assert(!r1.canEqual(2), "r1 should not be comparable to an integer")
       assert(!r1.canEqual("Asdf"), "r1 should not be comparable to a string")
       assert(r1 !== 2)
+    }
+
+    "should have working fold methods" - {
+      implicit val urlStringMonoid = new Monoid[String] {
+        override def empty: String = ""
+        override def combine(x: String, y: String): String = x + "/" + y
+      }
+
+      object chunkToStr extends ~>>[Id, String] {
+        override def apply[T](f: Id[T]): String = f.toString
+      }
+
+      "should have a working global fold method" in {
+        val r1 = Root / "foo" / "bar"
+        Route.fold(r1, chunkToStr) shouldBe "/foo/bar"
+      }
+
+      "should have a working local fold method" in {
+        val r1 = Root / "foo" / "bar"
+        r1.fold(chunkToStr) shouldBe "/foo/bar"
+      }
     }
     "when empty" - {
       "should compile" in {

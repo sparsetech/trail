@@ -1,7 +1,17 @@
 package pl.metastack.metarouter
 
+import cats.Monoid
+import shapeless.PolyDefns.Case
 import shapeless._
 import shapeless.ops.hlist._
+import shapeless.poly._
+import cats.syntax.all._
+import cats.std.list.listInstance
+import shapeless.ops.hlist.Fill.Aux
+import shapeless.ops.hlist.IsHCons.Aux
+import shapeless.ops.hlist.Length.Aux
+import shapeless.ops.hlist.Mapper.Aux
+import shapeless.ops.hlist.ToTraversable.Aux
 
 object Route {
   // TODO: Figure out what to do with relative routes.
@@ -24,10 +34,51 @@ object Route {
   }
 
   val Root = Route[HNil](HNil)
+
+  /**
+    * Converts all the chunks of the path to `HR` using the passed `~>>` function.
+    * Then combines all the `HR` elements together.
+    */
+  def fold[
+      ROUTE <: HList
+    , H, HR: Monoid            // Head and Head Result - convert from what and to what
+    , T <: HList, TR <: HList  // Tail and tail result
+    , TLen <: Nat              // Length of the tail
+  ](r: RouteBase[ROUTE], f: Id ~>> HR)(implicit   // Infers ROUTE and HR
+      cons: IsHCons.Aux[ROUTE, H, T]              // Infers H and T
+    , tlen: Length .Aux[T, TLen]                  // Infers TLen. Length.Aux[T, Nothing] <: Length[T], so the implicit will be found and TLen will be set to its #Out
+    , tr  : Fill   .Aux[TLen, HR, TR]             // Infers TR
+
+    , hc  : Case1 .Aux[f.type, H, HR]              // Maps head
+    , mt  : Mapper.Aux[f.type, ROUTE, HR :: TR]   // Maps tail
+    , trav: ToTraversable.Aux[HR :: TR, List, HR]  // Converts HList to List
+  ): HR =
+    r.path.map(f).toList[HR].combineAll
+
 }
 
-case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
+trait RouteBase[ROUTE <: HList] {
+  def path: ROUTE
+
+  def fold[
+    H, HR: Monoid
+  , T <: HList, TR <: HList
+  , TLen <: Nat
+  ](f: Id ~>> HR)(implicit
+      cons: IsHCons.Aux[ROUTE, H, T]
+    , tlen: Length .Aux[T, TLen]
+    , tr  : Fill   .Aux[TLen, HR, TR]
+
+    , hc  : Case1  .Aux[f.type, H, HR]
+    , mt  : Mapper .Aux[f.type, ROUTE, HR :: TR]
+    , trav: ToTraversable.Aux[HR :: TR, List, HR]
+  ): HR = Route.fold(this, f)
+}
+
+case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase[ROUTE] {
   def as[T]: MappedRoute[ROUTE, T] = MappedRoute[ROUTE, T](this)
+
+  def path = pathElements
 
   def fill()(implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
     InstantiatedRoute[ROUTE, HNil] =
@@ -112,7 +163,10 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) {
   }
 }
 
-case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) {
+case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
+
+  override def path: ROUTE = route.path
+
   def url(): String = {
     def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
       (r, a) match {
@@ -136,7 +190,10 @@ case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] 
   override def hashCode(): Int = url().hashCode
 }
 
-case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) {
+case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
+
+  override def path: ROUTE = route.path
+
   def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
   InstantiatedRoute[ROUTE, L] =
     InstantiatedRoute[ROUTE, L](route, gen.to(value))
