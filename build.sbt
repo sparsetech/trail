@@ -4,6 +4,7 @@ val Scala2_11  = "2.11.8"
 val Scala2_12  = "2.12.0-M4"
 val ScalaTest  = "3.0.0-RC2"
 val ScalaJsDom = "0.9.1"
+val Cats       = "0.6.0"
 
 val SharedSettings = Seq(
   name := "MetaRouter",
@@ -44,26 +45,21 @@ lazy val metaRouter = crossProject.in(file("."))
   .settings(SharedSettings: _*)
   .settings(
     autoAPIMappings := true,
-    apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
+    apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
+    libraryDependencies ++= Seq(
+      "com.chuusai"   %%% "shapeless"      % Shapeless,
+      "org.typelevel" %%% "cats"           % Cats,
+      "org.scalatest" %%% "scalatest"      % ScalaTest % "test"
+    )
   )
   .jsSettings(
-    libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % ScalaJsDom,
-      "com.chuusai" %%% "shapeless" % Shapeless,
-      "org.scalatest" %%% "scalatest" % ScalaTest % "test"
-    ),
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % ScalaJsDom,
 
     /* Use io.js for faster compilation of test cases */
     scalaJSStage in Global := FastOptStage
   )
-  .jvmSettings(
-    libraryDependencies ++= Seq(
-      "com.chuusai" %% "shapeless" % Shapeless,
-      "org.scalatest" %% "scalatest" % ScalaTest % "test"
-    )
-  )
 
-lazy val js = metaRouter.js
+lazy val js  = metaRouter.js
 lazy val jvm = metaRouter.jvm
 
 lazy val manual = project.in(file("manual"))
