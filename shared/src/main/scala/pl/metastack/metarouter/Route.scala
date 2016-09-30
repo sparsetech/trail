@@ -1,12 +1,13 @@
 package pl.metastack.metarouter
 
 import cats.Monoid
+import cats.syntax.all._
+import cats.instances.list._
+
 import shapeless.PolyDefns.Case
 import shapeless._
 import shapeless.ops.hlist._
 import shapeless.poly._
-import cats.syntax.all._
-import cats.std.list.listInstance
 import shapeless.ops.hlist.Fill.Aux
 import shapeless.ops.hlist.IsHCons.Aux
 import shapeless.ops.hlist.Length.Aux
@@ -54,7 +55,6 @@ object Route {
     , trav: ToTraversable.Aux[HR :: TR, List, HR]  // Converts HList to List
   ): HR =
     r.path.map(f).toList[HR].combineAll
-
 }
 
 trait RouteBase[ROUTE <: HList] {
@@ -164,7 +164,6 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
 }
 
 case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
-
   override def path: ROUTE = route.path
 
   def url(): String = {
@@ -191,7 +190,6 @@ case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] 
 }
 
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
-
   override def path: ROUTE = route.path
 
   def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
