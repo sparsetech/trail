@@ -1,10 +1,11 @@
 val MetaDocs   = "0.1.1"
-val Shapeless  = "2.3.1"
+val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.8"
-val Scala2_12  = "2.12.0-M4"
-val ScalaTest  = "3.0.0-RC2"
+val Scala2_12  = "2.12.0-RC1"
+val ScalaTest  = "3.0.0"
 val ScalaJsDom = "0.9.1"
-val Cats       = "0.6.0"
+val Cats       = "0.7.2"
+val JGit       = "4.5.0.201609210915-r"
 
 val SharedSettings = Seq(
   name := "MetaRouter",
@@ -47,9 +48,9 @@ lazy val metaRouter = crossProject.in(file("."))
     autoAPIMappings := true,
     apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
     libraryDependencies ++= Seq(
-      "com.chuusai"   %%% "shapeless"      % Shapeless,
-      "org.typelevel" %%% "cats"           % Cats,
-      "org.scalatest" %%% "scalatest"      % ScalaTest % "test"
+      "com.chuusai"   %%% "shapeless" % Shapeless,
+      "org.typelevel" %%% "cats"      % Cats,
+      "org.scalatest" %%% "scalatest" % ScalaTest % "test"
     )
   )
   .jsSettings(
@@ -70,7 +71,7 @@ lazy val manual = project.in(file("manual"))
     publishArtifact := false,
     libraryDependencies ++= Seq(
       "pl.metastack" %% "metadocs" % MetaDocs,
-      "org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r"),
+      "org.eclipse.jgit" % "org.eclipse.jgit" % JGit),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "pl.metastack.metarouter",
     name := "MetaRouter manual")
