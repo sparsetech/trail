@@ -5,12 +5,12 @@ import org.scalatest._
 class InstantiatedRouteTests extends WordSpec with Matchers  {
   "A Route" when {
     "empty" should {
-      "return root url" in {
+      "return root URL" in {
         assert(Root.fill().url === "/")
       }
     }
-    "no Args" should {
-      "return a url of the static path elements" in {
+    "no `Arg`s" should {
+      "return a URL of the static path elements" in {
         val oneElement = Root / "asdf"
         assert(oneElement.fill().url === "/asdf")
 
@@ -21,8 +21,8 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
         assert(threeElement.fill().url === "/asdf/true/foo")
       }
     }
-    "one Arg" should {
-      "return a url of the static path elements with the args filled" in {
+    "one `Arg`" should {
+      "return a URL of the static path elements with the args filled" in {
         val route = Root / "asdf" / Arg[Int]
         assert(route.fill(1).url === "/asdf/1")
 
@@ -30,10 +30,16 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
         assert(route2.fill(1).url === "/asdf/1/true")
       }
     }
-    "multiple Args" should {
-      "return a url of the static path elements with the args filled" in {
+    "multiple `Arg`s" should {
+      "return a URL of the static path elements with the args filled" in {
         val r = Root / Arg[String] / "asdf" / Arg[Int]
         assert(r.fillN("route", 1).url === "/route/asdf/1")
+      }
+    }
+    "Long `Arg`" should {
+      "return a URL of the static path elements with the args filled" in {
+        val route = Root / Arg[Long]
+        assert(route.fill(600851475000L).url === "/600851475000")
       }
     }
     "custom path element" should {
@@ -41,7 +47,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
       implicit object FooStaticElement extends StaticElement[FooBar] {
         def urlEncode(value: FooBar): String = value.foo
       }
-      "create url" in {
+      "create URL" in {
         val r = Root / FooBar("asdf")
         val i = r.fill()
         assert(i.url === "/asdf")
