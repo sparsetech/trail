@@ -20,6 +20,11 @@ object ParseableArg {
     override def urlEncode(s: Int) = s.toString
   }
 
+  implicit case object LongArg extends ParseableArg[Long] {
+    override def urlDecode(s: String) = Try(s.toLong).toOption
+    override def urlEncode(s: Long) = s.toString
+  }
+
   implicit case object StringArg extends ParseableArg[String] {
     override def urlDecode(s: String) = Option(s)
     override def urlEncode(s: String) = s
