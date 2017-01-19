@@ -4,15 +4,9 @@ import cats.Monoid
 import cats.syntax.all._
 import cats.instances.list._
 
-import shapeless.PolyDefns.Case
 import shapeless._
 import shapeless.ops.hlist._
 import shapeless.poly._
-import shapeless.ops.hlist.Fill.Aux
-import shapeless.ops.hlist.IsHCons.Aux
-import shapeless.ops.hlist.Length.Aux
-import shapeless.ops.hlist.Mapper.Aux
-import shapeless.ops.hlist.ToTraversable.Aux
 
 object Route {
   // TODO Figure out what to do with relative routes and query parameters
