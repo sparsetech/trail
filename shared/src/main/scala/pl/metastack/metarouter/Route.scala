@@ -9,18 +9,6 @@ import shapeless.ops.hlist._
 import shapeless.poly._
 
 object Route {
-  // TODO Figure out what to do with relative routes and query parameters
-  def parse(s: String) = {
-    val r = Route(split(s).foldRight[HList](HNil)((x, y) => x :: y))
-    RouteData(r, HNil)
-  }
-
-  def split(s: String): List[String] = {
-    val x = s.stripPrefix("/")
-    if (x.isEmpty) Nil
-    else x.split('/').toList
-  }
-
   trait Drop extends Poly1 {
     implicit def default[T] = at[T](x => HNil)
   }
@@ -72,31 +60,6 @@ trait RouteBase[ROUTE <: HList] {
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase[ROUTE] {
   def path = pathElements
 
-  def parse[L <: HList](s: String)
-    (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
-    Option[RouteData[ROUTE, L]] =
-  {
-    import shapeless.HList.ListCompat._
-
-    def m[R <: HList](r: R, s: Seq[String]): Option[HList] =
-      (r, s) match {
-        case (HNil, Nil) => Some(HNil)
-        case (_,    Nil) => None
-        case (HNil, _)   => None
-        case ((rH: String)  #: rT, sH :: sT) if rH == sH => m(rT, sT)
-        case ((rH: String)  #: rT, sH :: sT) => None
-        case ((arg: Arg[_]) #: rT, sH :: sT) =>
-          arg.parseableArg.urlDecode(sH).flatMap { decoded =>
-            m(rT, sT).map(decoded :: _)
-          }
-      }
-
-    m[ROUTE](pathElements, Route.split(s)).map { x =>
-      // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
-      RouteData(this, x.asInstanceOf[L])
-    }
-  }
-
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
 }
@@ -107,18 +70,13 @@ case class RouteData[ROUTE <: HList, DATA <: HList] private[metarouter](route: R
 
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
   override def path: ROUTE = route.path
-
-  def parse[L <: HList](uri: String)
-                       (implicit gen: Generic.Aux[T, L],
-                        map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
-    route.parse(uri).map(parsed => gen.from(parsed.data))
 }
 
 class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
   def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
                                            (implicit gen: Generic.Aux[T, L],
                                             map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
-    val f: String => Option[Any] = other.parse(_)
+    val f: String => Option[Any] = Router.parse(other, _)
     new ComposedRoute(parsers :+ f)
   }
 
@@ -132,5 +90,5 @@ object ComposedRoute {
   def apply[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
                                           (implicit gen: Generic.Aux[T, L],
                                            map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
-    new ComposedRoute(Seq(route.parse(_)))
+    new ComposedRoute(Seq(Router.parse(route, _)))
 }

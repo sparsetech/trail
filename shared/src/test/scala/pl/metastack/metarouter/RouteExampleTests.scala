@@ -27,7 +27,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "Matching root" should "just work" in {
-    Root.parse("/") shouldBe defined
+    Router.parse(Root, "/") shouldBe defined
   }
 
   "A Modified Simple example" should "just work" in {
@@ -40,17 +40,17 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
     assert(Router.url(userInfo) === Router.url(userInfo2))
 
-    assert(Route.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c", HNil))
+    assert(Router.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c"))
 
-    UserInfo.parse("/user/bob/true") shouldBe defined
-    val parsedRoute = UserInfo.parse("/user/bob/true").get
+    Router.parse(UserInfo, "/user/bob/true") shouldBe defined
+    val parsedRoute = Router.parse(UserInfo, "/user/bob/true").get
     assert(parsedRoute.route === UserInfo)
     assert(parsedRoute.data == "bob" :: true :: HNil)
 
-    UserInfo.parse("/user/bob") shouldBe empty
-    UserInfo.parse("/user/bob/true/true") shouldBe empty
-    UserInfo.parse("/user/bob/1") shouldBe empty
-    UserInfo.parse("/usr/bob/1") shouldBe empty
+    Router.parse(UserInfo, "/user/bob") shouldBe empty
+    Router.parse(UserInfo, "/user/bob/true/true") shouldBe empty
+    Router.parse(UserInfo, "/user/bob/1") shouldBe empty
+    Router.parse(UserInfo, "/usr/bob/1") shouldBe empty
 
     ///(Root / "user" / "bob").errorMessage(UserInfo) == Some("`details` not specified")
 
@@ -85,7 +85,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
   "parse()" should "work on mapped route" in {
     case class UserInfo(user: String, details: Boolean)
     val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
-    assert(userInfo.parse("/user/hello/false")
+    assert(Router.parse(userInfo, "/user/hello/false")
       .contains(UserInfo("hello", false)))
   }
 
