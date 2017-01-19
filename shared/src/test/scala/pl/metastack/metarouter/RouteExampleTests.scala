@@ -31,13 +31,14 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "A Modified Simple example" should "just work" in {
-    val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val userInfo = Router.fill(UserInfo, "bob" :: false :: HNil)
+    val UserInfo  = Root / "user" / Arg[String] / Arg[Boolean]
+    val userInfo  = Router.fill(UserInfo, "bob" :: false :: HNil)
+    val userInfo2 = Router.fill(Root / "user" / "bob" / false)
 
     assert(Router.url(userInfo) === "/user/bob/false")
     assert(userInfo.route === UserInfo)
 
-    assert(Router.url(userInfo) === Router.url(Router.fill(Root / "user" / "bob" / false)))
+    assert(Router.url(userInfo) === Router.url(userInfo2))
 
     assert(Route.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c", HNil))
 

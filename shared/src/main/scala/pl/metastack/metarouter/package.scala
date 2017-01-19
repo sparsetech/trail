@@ -1,6 +1,6 @@
 package pl.metastack
 
-package object metarouter extends Instances {
+package object metarouter {
   val Root = Route.Root
   val !#   = Root
 }

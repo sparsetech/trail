@@ -164,12 +164,14 @@ class RouteTests extends FreeSpec with Matchers {
         val bar = !# / "asdf" / Arg[Boolean] / Arg[Int]
 
         assert(foo !== bar)
+        assert(foo.hashCode() !== bar.hashCode())
       }
       "should not equal another route with different types but same names" in {
         val foo = !# / "asdf" / Arg[Int] / Arg[Boolean]
         val bar = !# / "asdf" / Arg[Boolean] / Arg[Int]
 
         assert(foo !== bar)
+        assert(foo.hashCode() !== bar.hashCode())
       }
     }
     "when using a custom path element" - {
