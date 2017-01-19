@@ -14,7 +14,7 @@ class RouterTests extends FlatSpec with Matchers {
     implicit def userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
     implicit def register = route[Register](Root / "register")
 
-    assert(fill(Details(42)).url() == "/details/42")
+    assert(url(fill(Details(42))) == "/details/42")
 
     assert(url(Details(42)) == "/details/42")
     assert(url(UserInfo("test", true)) == "/user/test/true")

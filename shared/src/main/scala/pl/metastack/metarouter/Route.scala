@@ -15,7 +15,7 @@ import shapeless.ops.hlist.Mapper.Aux
 import shapeless.ops.hlist.ToTraversable.Aux
 
 object Route {
-  // TODO: Figure out what to do with relative routes.
+  // TODO Figure out what to do with relative routes and query parameters
   def parse(s: String) = {
     val r = Route(split(s).foldRight[HList](HNil)((x, y) => x :: y))
     InstantiatedRoute(r, HNil)
@@ -141,27 +141,15 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
 case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
   override def path: ROUTE = route.path
 
-  def url(): String = {
-    def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
-      (r, a) match {
-        case (HNil, HNil) if sb.isEmpty => "/"
-        case (HNil, HNil) => sb
-        case ((h: String) :: t, _) => build(t, a)(s"$sb/$h")
-        case ((a: Arg[_]) :: t, ah :: at) => build(t, at)(s"$sb/${a.asInstanceOf[Arg[Any]].parseableArg.urlEncode(ah)}")
-      }
-
-    build[ROUTE, DATA](route.pathElements, data)("")
-  }
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[InstantiatedRoute[ROUTE, DATA]]
 
   override def equals(other: Any): Boolean =
     other match {
-      case o: InstantiatedRoute[_, _] => url() == o.url()
+      case o: InstantiatedRoute[_, _] => Router.url(this) == Router.url(o)
       case _ => false
     }
 
-  override def hashCode(): Int = url().hashCode
+  override def hashCode(): Int = Router.url(this).hashCode
 }
 
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
@@ -204,14 +192,26 @@ object Router {
                                                    mapped: MappedRoute[ROUTE, T]):
     InstantiatedRoute[ROUTE, Args] = fill(mapped, data)
 
+  def url[ROUTE <: HList, DATA <: HList](routeData: InstantiatedRoute[ROUTE, DATA]): String = {
+    def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
+      (r, a) match {
+        case (HNil, HNil) if sb.isEmpty => "/"
+        case (HNil, HNil) => sb
+        case ((h: String) :: t, _) => build(t, a)(s"$sb/$h")
+        case ((a: Arg[_]) :: t, ah :: at) => build(t, at)(s"$sb/${a.asInstanceOf[Arg[Any]].parseableArg.urlEncode(ah)}")
+      }
+
+    build[ROUTE, DATA](routeData.route.pathElements, routeData.data)("")
+  }
+
   def url[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
                                         (implicit gen: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]): String =
-    InstantiatedRoute(route, args).url()
+    url(InstantiatedRoute(route, args))
 
   def url[ROUTE <: HList, T](mapped: MappedRoute[ROUTE, T], data: T)
                             (implicit gen: Generic[T]): String = {
     val args = gen.to(data).asInstanceOf[HList]
-    InstantiatedRoute(mapped.route, args).url()
+    url(InstantiatedRoute(mapped.route, args))
   }
 
   def url[T, ROUTE <: HList](data: T)(implicit gen: Generic[T],
