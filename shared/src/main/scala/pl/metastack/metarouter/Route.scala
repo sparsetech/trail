@@ -99,51 +99,10 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
 
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Route[ROUTE]]
-
-  override def equals(other: scala.Any): Boolean = {
-    def cmp(l: HList, r: HList): Boolean =
-      (l, r) match {
-        case (HNil, HNil) => true
-        case (_   , HNil) => false
-        case (HNil, _   ) => false
-        case ((aH: Arg[_]) :: aT, (bH: Arg[_]) :: bT) if aH.parseableArg == bH.parseableArg => cmp(aT, bT)
-        case ((aH: Arg[_]) :: aT, (bH: Arg[_]) :: bT) if aH.parseableArg != bH.parseableArg => false
-        case (aH :: aT, bH :: bT) if aH == bH => cmp(aT, bT)
-        case (aH :: aT, bH :: bT) => false
-      }
-
-    other match {
-      case o: Route[ROUTE] => cmp(pathElements, o.pathElements)
-      case _ => false
-    }
-  }
-
-  override def hashCode(): Int = {
-    def build[R <: HList](p: R): Int =
-      p match {
-        case HNil => 0
-        case (h: Arg[_]) :: t => h.parseableArg.hashCode() ^ build(t)
-        case h :: t => h.hashCode() ^ build(t)
-      }
-
-    build(pathElements)
-  }
 }
 
 case class RouteData[ROUTE <: HList, DATA <: HList] private[metarouter](route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
   override def path: ROUTE = route.path
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[RouteData[ROUTE, DATA]]
-
-  override def equals(other: Any): Boolean =
-    other match {
-      case o: RouteData[_, _] => Router.url(this) == Router.url(o)
-      case _ => false
-    }
-
-  override def hashCode(): Int = Router.url(this).hashCode
 }
 
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
@@ -154,7 +113,6 @@ case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase
                         map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
     route.parse(uri).map(parsed => gen.from(parsed.data))
 }
-
 
 class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
   def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])

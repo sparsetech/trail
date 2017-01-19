@@ -37,7 +37,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
     assert(Router.url(userInfo) === "/user/bob/false")
     assert(userInfo.route === UserInfo)
 
-    assert(userInfo === Router.fill(Root / "user" / "bob" / false, HNil))
+    assert(Router.url(userInfo) === Router.url(Router.fill(Root / "user" / "bob" / false)))
 
     assert(Route.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c", HNil))
 
