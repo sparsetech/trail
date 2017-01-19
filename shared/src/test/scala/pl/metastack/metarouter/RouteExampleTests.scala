@@ -97,7 +97,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val details  = route[Details](Root / "details" / Arg[Int])
     val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
 
-    val routes = ComposedRoute(details).orElse(userInfo)
+    val routes = Router.create(details).orElse(userInfo)
 
     assert(routes.parse("/user/hello/false")
       .contains(UserInfo("hello", false)))

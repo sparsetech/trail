@@ -3,6 +3,20 @@ package pl.metastack.metarouter
 import shapeless._
 import shapeless.ops.hlist._
 
+class Router(parsers: List[String => Option[Any]]) {
+  def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
+                                           (implicit gen: Generic.Aux[T, L],
+                                            map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
+    val f: String => Option[Any] = Router.parse(other, _)
+    new Router(parsers :+ f)
+  }
+
+  def parse(uri: String): Option[Any] =
+    parsers.foldLeft(Option.empty[Any]) { case (acc, cur) =>
+      acc.orElse(cur(uri))
+    }
+}
+
 object Router {
   private[metarouter] class MappedRouterHelper[T] {
     def apply[ROUTE <: HList, Params <: HList](route: Route[ROUTE])
@@ -19,6 +33,11 @@ object Router {
     if (x.isEmpty) Nil
     else x.split('/').toList
   }
+
+  def create[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
+                                           (implicit gen: Generic.Aux[T, L],
+                                                     map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
+    new Router(List(Router.parse(route, _)))
 
   // TODO Figure out what to do with relative routes and query parameters
   def parse(s: String): RouteData[HList, HNil] = {
