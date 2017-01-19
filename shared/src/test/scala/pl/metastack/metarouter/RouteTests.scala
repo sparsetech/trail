@@ -21,7 +21,7 @@ class RouteTests extends FreeSpec with Matchers {
       assert(r1 !== 2)
     }
 
-    "should have working fold methods" - {
+    "fold()" - {
       implicit val urlStringMonoid = new Monoid[String] {
         override def empty: String = ""
         override def combine(x: String, y: String): String = x + "/" + y
@@ -31,15 +31,8 @@ class RouteTests extends FreeSpec with Matchers {
         override def apply[T](f: Id[T]): String = f.toString
       }
 
-      "should have a working global fold method" in {
-        val r1 = Root / "foo" / "bar"
-        Route.fold(r1, chunkToStr) shouldBe "/foo/bar"
-      }
-
-      "should have a working local fold method" in {
-        val r1 = Root / "foo" / "bar"
-        r1.fold(chunkToStr) shouldBe "/foo/bar"
-      }
+      val r = Root / "foo" / "bar"
+      Route.fold(r, chunkToStr) shouldBe "/foo/bar"
     }
     "when empty" - {
       "should compile" in {
