@@ -9,13 +9,6 @@ import shapeless.ops.hlist._
 import shapeless.poly._
 
 object Route {
-  trait Drop extends Poly1 {
-    implicit def default[T] = at[T](x => HNil)
-  }
-  object ConvertArgs extends Drop {
-    implicit def caseArg[T] = at[Arg[T]].apply[T :: HNil](x => null.asInstanceOf[T] :: HNil)
-  }
-
   val Root = Route[HNil](HNil)
 
   /**

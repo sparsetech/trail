@@ -6,7 +6,7 @@ import shapeless.ops.hlist._
 class Router(parsers: List[String => Option[Any]]) {
   def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
                                            (implicit gen: Generic.Aux[T, L],
-                                            map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) = {
+                                            map: FlatMapper.Aux[Args.Convert.type, ROUTE, L]) = {
     val f: String => Option[Any] = Router.parse(other, _)
     new Router(parsers :+ f)
   }
@@ -21,7 +21,7 @@ object Router {
   private[metarouter] class MappedRouterHelper[T] {
     def apply[ROUTE <: HList, Params <: HList](route: Route[ROUTE])
                                               (implicit p: Generic.Aux[T, Params],
-                                                       ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params]
+                                                       ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Params]
                                               ): MappedRoute[ROUTE, T] =
       new MappedRoute[ROUTE, T](route)
   }
@@ -36,7 +36,7 @@ object Router {
 
   def create[ROUTE <: HList, T, L <: HList](route: MappedRoute[ROUTE, T])
                                            (implicit gen: Generic.Aux[T, L],
-                                                     map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]) =
+                                                     map: FlatMapper.Aux[Args.Convert.type, ROUTE, L]) =
     new Router(List(Router.parse(route, _)))
 
   // TODO Figure out what to do with relative routes and query parameters
@@ -46,7 +46,7 @@ object Router {
   }
 
   def parse[ROUTE <: HList, L <: HList](route: Route[ROUTE], s: String)
-    (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
+    (implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, L]):
     Option[RouteData[ROUTE, L]] =
   {
     import shapeless.HList.ListCompat._
@@ -72,16 +72,16 @@ object Router {
 
   def parse[ROUTE <: HList, T, Args <: HList](mappedRoute: MappedRoute[ROUTE, T], uri: String)
                                              (implicit gen: Generic.Aux[T, Args],
-                                                       map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]): Option[T] =
+                                                       map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]): Option[T] =
     parse(mappedRoute.route, uri).map(parsed => gen.from(parsed.data))
 
   def fill[ROUTE <: HList](route: Route[ROUTE])
-                          (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
+                          (implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, HNil]):
     RouteData[ROUTE, HNil] =
       RouteData[ROUTE, HNil](route, HNil)
 
   def fill[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
-                                         (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]):
+                                         (implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]):
     RouteData[ROUTE, Args] =
       RouteData[ROUTE, Args](route, args)
 
@@ -108,7 +108,7 @@ object Router {
   }
 
   def url[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
-                                        (implicit gen: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]): String =
+                                        (implicit gen: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]): String =
     url(RouteData(route, args))
 
   def url[ROUTE <: HList, T](mapped: MappedRoute[ROUTE, T], data: T)
