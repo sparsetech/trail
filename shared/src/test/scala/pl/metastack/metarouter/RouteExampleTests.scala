@@ -2,7 +2,6 @@ package pl.metastack.metarouter
 
 import org.scalatest._
 
-import pl.metastack.metarouter._
 import shapeless.HNil
 
 class RouteExampleTests extends FlatSpec with Matchers {
