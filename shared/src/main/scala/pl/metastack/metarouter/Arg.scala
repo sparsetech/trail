@@ -1,6 +1,6 @@
 package pl.metastack.metarouter
 
-import shapeless.{HNil, Poly1, ::}
+import shapeless._
 
 import scala.util.Try
 

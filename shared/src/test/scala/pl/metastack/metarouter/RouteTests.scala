@@ -2,6 +2,7 @@ package pl.metastack.metarouter
 
 import cats.kernel.Monoid
 import cats.{Id => _, _}
+
 import org.scalatest._
 import shapeless.test.illTyped
 import shapeless._
@@ -32,7 +33,7 @@ class RouteTests extends FreeSpec with Matchers {
       }
 
       val r = Root / "foo" / "bar"
-      Route.fold(r, chunkToStr) shouldBe "/foo/bar"
+      Router.fold(r, chunkToStr) shouldBe "/foo/bar"
     }
     "when empty" - {
       "should compile" in {
