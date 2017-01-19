@@ -3,7 +3,7 @@ package pl.metastack.metarouter
 import org.scalatest._
 import shapeless.HNil
 
-class InstantiatedRouteTests extends WordSpec with Matchers  {
+class RouteDataTests extends WordSpec with Matchers {
   "A Route" when {
     "empty" should {
       "return root URL" in {
@@ -61,7 +61,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
         def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar)
         def urlEncode(s: FooBar): String = s.foo
       }
-      "create url" in {
+      "create URL" in {
         val r = Root / Arg[FooBar]
         val i = Router.fill(r, FooBar("dasd") :: HNil)
         assert(Router.url(i) === "/dasd")

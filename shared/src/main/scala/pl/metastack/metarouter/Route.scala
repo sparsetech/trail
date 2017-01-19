@@ -12,7 +12,7 @@ object Route {
   // TODO Figure out what to do with relative routes and query parameters
   def parse(s: String) = {
     val r = Route(split(s).foldRight[HList](HNil)((x, y) => x :: y))
-    InstantiatedRoute(r, HNil)
+    RouteData(r, HNil)
   }
 
   def split(s: String): List[String] = {
@@ -74,7 +74,7 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
 
   def parse[L <: HList](s: String)
     (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
-    Option[InstantiatedRoute[ROUTE, L]] =
+    Option[RouteData[ROUTE, L]] =
   {
     import shapeless.HList.ListCompat._
 
@@ -93,7 +93,7 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
 
     m[ROUTE](pathElements, Route.split(s)).map { x =>
       // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
-      InstantiatedRoute(this, x.asInstanceOf[L])
+      RouteData(this, x.asInstanceOf[L])
     }
   }
 
@@ -132,14 +132,14 @@ case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase
   }
 }
 
-case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] (route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
+case class RouteData[ROUTE <: HList, DATA <: HList] private[metarouter](route: Route[ROUTE], data: DATA) extends RouteBase[ROUTE] {
   override def path: ROUTE = route.path
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[InstantiatedRoute[ROUTE, DATA]]
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[RouteData[ROUTE, DATA]]
 
   override def equals(other: Any): Boolean =
     other match {
-      case o: InstantiatedRoute[_, _] => Router.url(this) == Router.url(o)
+      case o: RouteData[_, _] => Router.url(this) == Router.url(o)
       case _ => false
     }
 
@@ -168,25 +168,25 @@ object Router {
 
   def fill[ROUTE <: HList](route: Route[ROUTE])
                           (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
-    InstantiatedRoute[ROUTE, HNil] =
-      InstantiatedRoute[ROUTE, HNil](route, HNil)
+    RouteData[ROUTE, HNil] =
+      RouteData[ROUTE, HNil](route, HNil)
 
   def fill[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
                                          (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]):
-    InstantiatedRoute[ROUTE, Args] =
-      InstantiatedRoute[ROUTE, Args](route, args)
+    RouteData[ROUTE, Args] =
+      RouteData[ROUTE, Args](route, args)
 
   def fill[ROUTE <: HList, T, Args <: HList](mapped: MappedRoute[ROUTE, T], data: T)
                                             (implicit gen: Generic.Aux[T, Args]):
-    InstantiatedRoute[ROUTE, Args] =
-      InstantiatedRoute[ROUTE, Args](mapped.route, gen.to(data))
+    RouteData[ROUTE, Args] =
+      RouteData[ROUTE, Args](mapped.route, gen.to(data))
 
   def fill[ROUTE <: HList, T, Args <: HList](data: T)
                                             (implicit gen: Generic.Aux[T, Args],
                                                    mapped: MappedRoute[ROUTE, T]):
-    InstantiatedRoute[ROUTE, Args] = fill(mapped, data)
+    RouteData[ROUTE, Args] = fill(mapped, data)
 
-  def url[ROUTE <: HList, DATA <: HList](routeData: InstantiatedRoute[ROUTE, DATA]): String = {
+  def url[ROUTE <: HList, DATA <: HList](routeData: RouteData[ROUTE, DATA]): String = {
     def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
       (r, a) match {
         case (HNil, HNil) if sb.isEmpty => "/"
@@ -200,12 +200,12 @@ object Router {
 
   def url[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
                                         (implicit gen: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]): String =
-    url(InstantiatedRoute(route, args))
+    url(RouteData(route, args))
 
   def url[ROUTE <: HList, T](mapped: MappedRoute[ROUTE, T], data: T)
                             (implicit gen: Generic[T]): String = {
     val args = gen.to(data).asInstanceOf[HList]
-    url(InstantiatedRoute(mapped.route, args))
+    url(RouteData(mapped.route, args))
   }
 
   def url[T, ROUTE <: HList](data: T)(implicit gen: Generic[T],
