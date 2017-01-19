@@ -202,6 +202,27 @@ case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase
     route.parse(uri).map(parsed => gen.from(parsed.data))
 }
 
+trait Routing {
+  protected class MappedRouterHelper[T] {
+    def apply[ROUTE <: HList, Params <: HList](route: Route[ROUTE])
+                                              (implicit p: Generic.Aux[T, Params],
+                                                        ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params]
+                                              ): MappedRoute[ROUTE, T] =
+      new MappedRoute[ROUTE, T](route)
+  }
+
+  protected def route[T] = new MappedRouterHelper[T]
+}
+
+object Router {
+  def url[T, ROUTE <: HList](data: T)(implicit gen: Generic[T],
+                                               mapped: MappedRoute[ROUTE, T]
+                                     ): String = {
+    val l = gen.to(data)
+    InstantiatedRoute(mapped.route, l.asInstanceOf[HList]).url()
+  }
+}
+
 class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
   def orElse[ROUTE <: HList, T, L <: HList](other: MappedRoute[ROUTE, T])
                                            (implicit gen: Generic.Aux[T, L],
