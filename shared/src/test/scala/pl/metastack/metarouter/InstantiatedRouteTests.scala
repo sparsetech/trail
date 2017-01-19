@@ -1,45 +1,47 @@
 package pl.metastack.metarouter
 
 import org.scalatest._
+import shapeless.HNil
 
 class InstantiatedRouteTests extends WordSpec with Matchers  {
   "A Route" when {
     "empty" should {
       "return root URL" in {
-        assert(Root.fill().url === "/")
+        val r = Router.fill(Root)
+        assert(r.url === "/")
       }
     }
     "no `Arg`s" should {
       "return a URL of the static path elements" in {
         val oneElement = Root / "asdf"
-        assert(oneElement.fill().url === "/asdf")
+        assert(Router.fill(oneElement, HNil).url === "/asdf")
 
         val twoElement = Root / "asdf" / "foo"
-        assert(twoElement.fill().url === "/asdf/foo")
+        assert(Router.fill(twoElement, HNil).url === "/asdf/foo")
 
         val threeElement = Root / "asdf" / true / "foo"
-        assert(threeElement.fill().url === "/asdf/true/foo")
+        assert(Router.fill(threeElement, HNil).url === "/asdf/true/foo")
       }
     }
     "one `Arg`" should {
       "return a URL of the static path elements with the args filled" in {
         val route = Root / "asdf" / Arg[Int]
-        assert(route.fill(1).url === "/asdf/1")
+        assert(Router.fill(route, 1 :: HNil).url === "/asdf/1")
 
         val route2 = Root / "asdf" / Arg[Int] / true
-        assert(route2.fill(1).url === "/asdf/1/true")
+        assert(Router.fill(route2, 1 :: HNil).url === "/asdf/1/true")
       }
     }
     "multiple `Arg`s" should {
       "return a URL of the static path elements with the args filled" in {
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        assert(r.fillN("route", 1).url === "/route/asdf/1")
+        assert(Router.fill(r, "route" :: 1 :: HNil).url === "/route/asdf/1")
       }
     }
     "Long `Arg`" should {
       "return a URL of the static path elements with the args filled" in {
         val route = Root / Arg[Long]
-        assert(route.fill(600851475000L).url === "/600851475000")
+        assert(Router.fill(route, 600851475000L :: HNil).url === "/600851475000")
       }
     }
     "custom path element" should {
@@ -49,7 +51,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
       }
       "create URL" in {
         val r = Root / FooBar("asdf")
-        val i = r.fill()
+        val i = Router.fill(r, HNil)
         assert(i.url === "/asdf")
       }
     }
@@ -61,7 +63,7 @@ class InstantiatedRouteTests extends WordSpec with Matchers  {
       }
       "create url" in {
         val r = Root / Arg[FooBar]
-        val i = r.fill(FooBar("dasd"))
+        val i = Router.fill(r, FooBar("dasd") :: HNil)
         assert(i.url === "/dasd")
       }
     }

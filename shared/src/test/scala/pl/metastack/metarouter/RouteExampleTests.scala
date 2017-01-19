@@ -32,14 +32,14 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
   "A Modified Simple example" should "just work" in {
     val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val userInfo = UserInfo.fillN("bob", false)
+    val userInfo = Router.fill(UserInfo, "bob" :: false :: HNil)
 
     assert(userInfo.url === "/user/bob/false")
     assert(userInfo.route === UserInfo)
 
-    assert(userInfo === (Root / "user" / "bob" / false).fill())
+    assert(userInfo === Router.fill(Root / "user" / "bob" / false, HNil))
 
-    assert(Route.parse("/a/b/c") === (Root / "a" / "b" / "c").fill())
+    assert(Route.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c", HNil))
 
     UserInfo.parse("/user/bob/true") shouldBe defined
     val parsedRoute = UserInfo.parse("/user/bob/true").get
@@ -64,7 +64,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
 
     val r = userInfo(UserInfo("hello", false))
-    assert(r == userInfo.route.fillN("hello", false))
+    assert(r == Router.fill(userInfo.route, "hello" :: false :: HNil))
 
     assert(userInfo.parse("/user/hello/false")
       .contains(UserInfo("hello", false)))

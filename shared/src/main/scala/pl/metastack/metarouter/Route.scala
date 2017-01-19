@@ -78,29 +78,6 @@ trait RouteBase[ROUTE <: HList] {
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase[ROUTE] {
   def path = pathElements
 
-  def fill()(implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
-    InstantiatedRoute[ROUTE, HNil] =
-      InstantiatedRoute[ROUTE, HNil](this, HNil)
-
-  def fill[T, Params <: HList, ParamsCount <: Nat](arg: T)
-    (implicit
-      ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params],
-      ev2: Length.Aux[Params, ParamsCount],
-      ev3: ParamsCount =:= Nat._1,
-      ev4: Params =:= (T :: HNil)
-    ): InstantiatedRoute[ROUTE, T :: HNil] =
-      InstantiatedRoute[ROUTE, T :: HNil](this, arg :: HNil)
-
-  def fillN[L <: HList, TP <: Product, Params <: HList, ParamsCount <: Nat](args: TP)
-    (implicit
-      ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Params],
-      ev2: Length.Aux[Params, ParamsCount],
-      ev3: ParamsCount <:!< Nat._1,
-      hl: Generic.Aux[TP, L],
-      ev4: Params =:= L
-    ): InstantiatedRoute[ROUTE, L] =
-      InstantiatedRoute[ROUTE, L](this, hl.to(args))
-
   def parse[L <: HList](s: String)
     (implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]):
     Option[InstantiatedRoute[ROUTE, L]] =
@@ -217,6 +194,16 @@ object Router {
     val l = gen.to(data)
     InstantiatedRoute(mapped.route, l.asInstanceOf[HList]).url()
   }
+
+  def fill[ROUTE <: HList](route: Route[ROUTE])
+                          (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
+    InstantiatedRoute[ROUTE, HNil] =
+      InstantiatedRoute[ROUTE, HNil](route, HNil)
+
+  def fill[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
+                                         (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]):
+    InstantiatedRoute[ROUTE, Args] =
+      InstantiatedRoute[ROUTE, Args](route, args)
 }
 
 class ComposedRoute(parsers: Seq[(String => Option[Any])]) {

@@ -11,7 +11,7 @@ class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
-      val r2 = r1.fill()
+      val r2 = Router.fill(r1, HNil)
       assert(!r1.canEqual(r2), "r1 should not be comparable to r2")
     }
     "cannot equal a non-route" in {
@@ -57,7 +57,7 @@ class RouteTests extends FreeSpec with Matchers {
       }
       "fill() with arguments should not compile" in {
         val r = Root / "asdf"
-        illTyped("r.fill(1)")
+        illTyped("Router.fill(r, 1 :: HNil)")
       }
       "can compute its hashcode consistently" in {
         val r1 = Root / "asdf"
