@@ -4,7 +4,7 @@ import org.scalatest._
 
 class RouterTests extends FlatSpec with Matchers {
   "Routing table" should "work" in {
-    import Router.{route, url}
+    import Router.{route, url, fill}
 
     case class Details(id: Int)
     case class UserInfo(user: String, details: Boolean)
@@ -13,6 +13,8 @@ class RouterTests extends FlatSpec with Matchers {
     implicit def details  = route[Details](Root / "details" / Arg[Int])
     implicit def userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
     implicit def register = route[Register](Root / "register")
+
+    assert(fill(Details(42)).url() == "/details/42")
 
     assert(url(Details(42)) == "/details/42")
     assert(url(UserInfo("test", true)) == "/user/test/true")

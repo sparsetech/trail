@@ -58,14 +58,32 @@ class RouteExampleTests extends FlatSpec with Matchers {
     //matchingRoutes == Seq(UserInfo)
   }
 
-  "Mapped route" should "just work" in {
+  "url()" should "work" in {
     case class UserInfo(user: String, details: Boolean)
-    import Router.route
-    val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val url = Router.url(userInfo, "hello" :: false :: HNil)
+    assert(url == "/user/hello/false")
+  }
 
-    val r = userInfo(UserInfo("hello", false))
+  "url()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val mapped   = Router.route[UserInfo](userInfo)
+    val url      = Router.url(mapped, UserInfo("hello", false))
+    assert(url == "/user/hello/false")
+  }
+
+  "fill()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+
+    val r = Router.fill(userInfo, UserInfo("hello", false))
     assert(r == Router.fill(userInfo.route, "hello" :: false :: HNil))
+  }
 
+  "parse()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
     assert(userInfo.parse("/user/hello/false")
       .contains(UserInfo("hello", false)))
   }

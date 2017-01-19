@@ -167,10 +167,6 @@ case class InstantiatedRoute[ROUTE <: HList, DATA <: HList] private[metarouter] 
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE]) extends RouteBase[ROUTE] {
   override def path: ROUTE = route.path
 
-  def apply[L <: HList](value: T)(implicit gen: Generic.Aux[T, L]):
-  InstantiatedRoute[ROUTE, L] =
-    InstantiatedRoute[ROUTE, L](route, gen.to(value))
-
   def parse[L <: HList](uri: String)
                        (implicit gen: Generic.Aux[T, L],
                         map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, L]): Option[T] =
@@ -188,13 +184,6 @@ object Router {
 
   def route[T] = new MappedRouterHelper[T]
 
-  def url[T, ROUTE <: HList](data: T)(implicit gen: Generic[T],
-                                               mapped: MappedRoute[ROUTE, T]
-                                     ): String = {
-    val l = gen.to(data)
-    InstantiatedRoute(mapped.route, l.asInstanceOf[HList]).url()
-  }
-
   def fill[ROUTE <: HList](route: Route[ROUTE])
                           (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):
     InstantiatedRoute[ROUTE, HNil] =
@@ -204,6 +193,30 @@ object Router {
                                          (implicit ev: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]):
     InstantiatedRoute[ROUTE, Args] =
       InstantiatedRoute[ROUTE, Args](route, args)
+
+  def fill[ROUTE <: HList, T, Args <: HList](mapped: MappedRoute[ROUTE, T], data: T)
+                                            (implicit gen: Generic.Aux[T, Args]):
+    InstantiatedRoute[ROUTE, Args] =
+      InstantiatedRoute[ROUTE, Args](mapped.route, gen.to(data))
+
+  def fill[ROUTE <: HList, T, Args <: HList](data: T)
+                                            (implicit gen: Generic.Aux[T, Args],
+                                                   mapped: MappedRoute[ROUTE, T]):
+    InstantiatedRoute[ROUTE, Args] = fill(mapped, data)
+
+  def url[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
+                                        (implicit gen: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, Args]): String =
+    InstantiatedRoute(route, args).url()
+
+  def url[ROUTE <: HList, T](mapped: MappedRoute[ROUTE, T], data: T)
+                            (implicit gen: Generic[T]): String = {
+    val args = gen.to(data).asInstanceOf[HList]
+    InstantiatedRoute(mapped.route, args).url()
+  }
+
+  def url[T, ROUTE <: HList](data: T)(implicit gen: Generic[T],
+                                            mapped: MappedRoute[ROUTE, T]
+                                     ): String = url(mapped, data)
 }
 
 class ComposedRoute(parsers: Seq[(String => Option[Any])]) {
