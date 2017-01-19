@@ -76,8 +76,6 @@ trait RouteBase[ROUTE <: HList] {
 }
 
 case class Route[ROUTE <: HList] private (pathElements: ROUTE) extends RouteBase[ROUTE] {
-  def as[T]: MappedRoute[ROUTE, T] = MappedRoute[ROUTE, T](this)
-
   def path = pathElements
 
   def fill()(implicit map: FlatMapper.Aux[Route.ConvertArgs.type, ROUTE, HNil]):

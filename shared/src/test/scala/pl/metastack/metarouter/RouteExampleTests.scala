@@ -60,7 +60,8 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
   "Mapped route" should "just work" in {
     case class UserInfo(user: String, details: Boolean)
-    val userInfo = (Root / "user" / Arg[String] / Arg[Boolean]).as[UserInfo]
+    import Router.route
+    val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
 
     val r = userInfo(UserInfo("hello", false))
     assert(r == userInfo.route.fillN("hello", false))
@@ -72,9 +73,10 @@ class RouteExampleTests extends FlatSpec with Matchers {
   "Composed route" should "just work" in {
     case class Details(userId: Int)
     case class UserInfo(user: String, details: Boolean)
+    import Router.route
 
-    val details  = (Root / "details" / Arg[Int]).as[Details]
-    val userInfo = (Root / "user" / Arg[String] / Arg[Boolean]).as[UserInfo]
+    val details  = route[Details](Root / "details" / Arg[Int])
+    val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
 
     val routes = ComposedRoute(details).orElse(userInfo)
 
