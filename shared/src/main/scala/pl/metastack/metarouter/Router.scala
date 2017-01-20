@@ -84,6 +84,7 @@ object Router {
     * Converts all the chunks of the path to `HR` using the passed `~>>` function.
     * Then combines all the `HR` elements together.
     */
+  // TODO Can be done better with `foldMap`
   def fold[
       ROUTE <: HList
     , H, HR: Monoid            // Head and head result - convert from what and to what
