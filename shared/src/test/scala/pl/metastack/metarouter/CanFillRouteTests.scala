@@ -1,75 +1,76 @@
 package pl.metastack.metarouter
 
 import org.scalatest._
+import shapeless.HNil
 
 class CanFillRouteTests extends WordSpec with Matchers  {
   "A Route" when {
     "empty" should {
       "create InstantiatedRoute" in {
-        Root.fill()
+        Router.fill(Root)
       }
       "not compile InstantiatedRoute with args" in {
-        "Root.fill(1)" shouldNot typeCheck
-        """Root.fill("asdf")""" shouldNot typeCheck
+        "Router.fill(Root, 1 :: HNil)" shouldNot typeCheck
+        """Router.fill(Root, "asdf" :: HNil)""" shouldNot typeCheck
       }
     }
     "no Args" should {
       "create InstantiatedRoute" in {
         val r = Root / "asdf"
-        r.fill()
+        Router.fill(r, HNil)
       }
       "not compile InstantiatedRoute with args" in {
         """
         val r = Root / "asdf"
-        r.fill(1)
+        Router.fill(r, 1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / "asdf"
-        r.fill("asdf")
+        Router.fill(r, "asdf" :: HNil)
         """.stripMargin shouldNot typeCheck
       }
     }
     "one Arg" should {
       "create InstantiatedRoute" in {
         val route = Root / "asdf" / Arg[Int]
-        route.fill(1)
+        Router.fill(route, 1 :: HNil)
       }
       "not compile with InstantiatedRoute with invalid arg type" in {
         """
         val r = Root / "asdf" / Arg[Int]
-        r.fill("Route")
+        Router.fill(r, "Route" :: HNil)
         """ shouldNot typeCheck
       }
       "not compile with InstantiatedRoute with invalid arg number" in {
         """
         val r = Root / "asdf" / Arg[Int]
-        r.fill("Route", 1)
+        Router.fill(r, "Route" :: 1 :: HNil)
         """ shouldNot typeCheck
       }
     }
     "multiple Args" should {
       "create InstantiatedRoute" in {
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        r.fillN("Route", 1)
+        Router.fill(r, "Route" :: 1 :: HNil)
       }
       "not compile with wrong argument order" in {
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        r.fill(1, "Route")
+        Router.fill(r, 1 :: "Route" :: HNil)
         """ shouldNot typeCheck
       }
       "not compile with wrong argument number" in {
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        r.fill(1, 1, 1)
+        Router.fill(r, 1 :: 1 :: 1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        r.fill(1)
+        Router.fill(r, 1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        r.fill("Route", 1, 1)
+        Router.fill(r, "Route" :: 1 :: 1 :: HNil)
         """ shouldNot typeCheck
       }
     }
@@ -80,7 +81,7 @@ class CanFillRouteTests extends WordSpec with Matchers  {
       }
       "create an InstantiatedRoute" in {
         val r = Root / FooBar("asdf")
-        val i = r.fill()
+        val i = Router.fill(r, HNil)
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)
@@ -97,7 +98,7 @@ class CanFillRouteTests extends WordSpec with Matchers  {
       }
       "create an InstantiatedRoute" in {
         val r = Root / Arg[FooBar]
-        val i = r.fill(FooBar("dasd"))
+        val i = Router.fill(r, FooBar("dasd") :: HNil)
         import shapeless._
         assert(i.data === FooBar("dasd") :: HNil)
       }

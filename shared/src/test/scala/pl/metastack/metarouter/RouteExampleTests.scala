@@ -2,7 +2,6 @@ package pl.metastack.metarouter
 
 import org.scalatest._
 
-import pl.metastack.metarouter._
 import shapeless.HNil
 
 class RouteExampleTests extends FlatSpec with Matchers {
@@ -27,29 +26,30 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "Matching root" should "just work" in {
-    Root.parse("/") shouldBe defined
+    Router.parse(Root, "/") shouldBe defined
   }
 
   "A Modified Simple example" should "just work" in {
-    val UserInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val userInfo = UserInfo.fillN("bob", false)
+    val UserInfo  = Root / "user" / Arg[String] / Arg[Boolean]
+    val userInfo  = Router.fill(UserInfo, "bob" :: false :: HNil)
+    val userInfo2 = Router.fill(Root / "user" / "bob" / false)
 
-    assert(userInfo.url === "/user/bob/false")
+    assert(Router.url(userInfo) === "/user/bob/false")
     assert(userInfo.route === UserInfo)
 
-    assert(userInfo === (Root / "user" / "bob" / false).fill())
+    assert(Router.url(userInfo) === Router.url(userInfo2))
 
-    assert(Route.parse("/a/b/c") === (Root / "a" / "b" / "c").fill())
+    assert(Router.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c"))
 
-    UserInfo.parse("/user/bob/true") shouldBe defined
-    val parsedRoute = UserInfo.parse("/user/bob/true").get
+    Router.parse(UserInfo, "/user/bob/true") shouldBe defined
+    val parsedRoute = Router.parse(UserInfo, "/user/bob/true").get
     assert(parsedRoute.route === UserInfo)
     assert(parsedRoute.data == "bob" :: true :: HNil)
 
-    UserInfo.parse("/user/bob") shouldBe empty
-    UserInfo.parse("/user/bob/true/true") shouldBe empty
-    UserInfo.parse("/user/bob/1") shouldBe empty
-    UserInfo.parse("/usr/bob/1") shouldBe empty
+    Router.parse(UserInfo, "/user/bob") shouldBe empty
+    Router.parse(UserInfo, "/user/bob/true/true") shouldBe empty
+    Router.parse(UserInfo, "/user/bob/1") shouldBe empty
+    Router.parse(UserInfo, "/usr/bob/1") shouldBe empty
 
     ///(Root / "user" / "bob").errorMessage(UserInfo) == Some("`details` not specified")
 
@@ -58,25 +58,45 @@ class RouteExampleTests extends FlatSpec with Matchers {
     //matchingRoutes == Seq(UserInfo)
   }
 
-  "Mapped route" should "just work" in {
+  "url()" should "work" in {
     case class UserInfo(user: String, details: Boolean)
-    val userInfo = (Root / "user" / Arg[String] / Arg[Boolean]).as[UserInfo]
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val url = Router.url(userInfo, "hello" :: false :: HNil)
+    assert(url == "/user/hello/false")
+  }
 
-    val r = userInfo(UserInfo("hello", false))
-    assert(r == userInfo.route.fillN("hello", false))
+  "url()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val mapped   = Router.route[UserInfo](userInfo)
+    val url      = Router.url(mapped, UserInfo("hello", false))
+    assert(url == "/user/hello/false")
+  }
 
-    assert(userInfo.parse("/user/hello/false")
+  "fill()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+
+    val r = Router.fill(userInfo, UserInfo("hello", false))
+    assert(r == Router.fill(userInfo.route, "hello" :: false :: HNil))
+  }
+
+  "parse()" should "work on mapped route" in {
+    case class UserInfo(user: String, details: Boolean)
+    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+    assert(Router.parse(userInfo, "/user/hello/false")
       .contains(UserInfo("hello", false)))
   }
 
   "Composed route" should "just work" in {
     case class Details(userId: Int)
     case class UserInfo(user: String, details: Boolean)
+    import Router.route
 
-    val details  = (Root / "details" / Arg[Int]).as[Details]
-    val userInfo = (Root / "user" / Arg[String] / Arg[Boolean]).as[UserInfo]
+    val details  = route[Details](Root / "details" / Arg[Int])
+    val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
 
-    val routes = ComposedRoute(details).orElse(userInfo)
+    val routes = Router.create(details).orElse(userInfo)
 
     assert(routes.parse("/user/hello/false")
       .contains(UserInfo("hello", false)))

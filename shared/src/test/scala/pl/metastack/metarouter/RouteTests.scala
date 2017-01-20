@@ -2,6 +2,7 @@ package pl.metastack.metarouter
 
 import cats.kernel.Monoid
 import cats.{Id => _, _}
+
 import org.scalatest._
 import shapeless.test.illTyped
 import shapeless._
@@ -11,7 +12,7 @@ class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
-      val r2 = r1.fill()
+      val r2 = Router.fill(r1, HNil)
       assert(!r1.canEqual(r2), "r1 should not be comparable to r2")
     }
     "cannot equal a non-route" in {
@@ -21,7 +22,7 @@ class RouteTests extends FreeSpec with Matchers {
       assert(r1 !== 2)
     }
 
-    "should have working fold methods" - {
+    "fold()" - {
       implicit val urlStringMonoid = new Monoid[String] {
         override def empty: String = ""
         override def combine(x: String, y: String): String = x + "/" + y
@@ -31,15 +32,8 @@ class RouteTests extends FreeSpec with Matchers {
         override def apply[T](f: Id[T]): String = f.toString
       }
 
-      "should have a working global fold method" in {
-        val r1 = Root / "foo" / "bar"
-        Route.fold(r1, chunkToStr) shouldBe "/foo/bar"
-      }
-
-      "should have a working local fold method" in {
-        val r1 = Root / "foo" / "bar"
-        r1.fold(chunkToStr) shouldBe "/foo/bar"
-      }
+      val r = Root / "foo" / "bar"
+      Router.fold(r, chunkToStr) shouldBe "/foo/bar"
     }
     "when empty" - {
       "should compile" in {
@@ -57,7 +51,7 @@ class RouteTests extends FreeSpec with Matchers {
       }
       "fill() with arguments should not compile" in {
         val r = Root / "asdf"
-        illTyped("r.fill(1)")
+        illTyped("Router.fill(r, 1 :: HNil)")
       }
       "can compute its hashcode consistently" in {
         val r1 = Root / "asdf"
@@ -164,12 +158,14 @@ class RouteTests extends FreeSpec with Matchers {
         val bar = !# / "asdf" / Arg[Boolean] / Arg[Int]
 
         assert(foo !== bar)
+        assert(foo.hashCode() !== bar.hashCode())
       }
       "should not equal another route with different types but same names" in {
         val foo = !# / "asdf" / Arg[Int] / Arg[Boolean]
         val bar = !# / "asdf" / Arg[Boolean] / Arg[Int]
 
         assert(foo !== bar)
+        assert(foo.hashCode() !== bar.hashCode())
       }
     }
     "when using a custom path element" - {

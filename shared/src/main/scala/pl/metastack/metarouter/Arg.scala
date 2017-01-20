@@ -1,5 +1,7 @@
 package pl.metastack.metarouter
 
+import shapeless._
+
 import scala.util.Try
 
 case class Arg[T](implicit val parseableArg: ParseableArg[T])
@@ -28,5 +30,15 @@ object ParseableArg {
   implicit case object StringArg extends ParseableArg[String] {
     override def urlDecode(s: String) = Option(s)
     override def urlEncode(s: String) = s
+  }
+}
+
+object Args {
+  trait Drop extends Poly1 {
+    implicit def default[T] = at[T](x => HNil)
+  }
+
+  object Convert extends Drop {
+    implicit def caseArg[T] = at[Arg[T]].apply[T :: HNil](_ => null.asInstanceOf[T] :: HNil)
   }
 }
