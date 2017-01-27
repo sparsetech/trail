@@ -15,15 +15,8 @@ object Examples extends SectionSupport {
   import pl.metastack.metarouter._
   val details = Root / "details" / Arg[Int]
 
-  section("fill") {
-    val filled = Router.fill(details, 1 :: HNil)
-    filled
-  }
-
-  val filled = Router.fill(details, 1 :: HNil)
-
   section("url") {
-    Router.url(filled)
+    Router.url(details, 1 :: HNil)
   }
 
   section("map") {

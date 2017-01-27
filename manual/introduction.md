@@ -16,10 +16,7 @@ libraryDependencies += "pl.metastack" %%% "metarouter" % "%version%"  // Scala.j
 Create a route:
 [scala type="section" value="route" file="Examples"]
 
-Fill the placeholders of the route:
-[scala type="section" value="fill" file="Examples"]
-
-Create a string URL from the filled route:
+Create a string URL by filling the placeholders of the route:
 [scala type="section" value="url" file="Examples"]
 
 Map a route to a `case class` and parse an URL:
