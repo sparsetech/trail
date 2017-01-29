@@ -48,8 +48,8 @@ object Router {
   def parse(s: String): Route[HList] =
     Route(split(s).foldRight[HList](HNil)((x, y) => x :: y))
 
-  /** Returns parsed arguments */
-  def parse[ROUTE <: HList](route: Route[ROUTE], uri: String): Option[HList] = {
+  def parse[ROUTE <: HList, Args <: HList](route: Route[ROUTE], uri: String)
+    (implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]): Option[Args] = {
     import shapeless.HList.ListCompat._
 
     def m[R <: HList](r: R, s: Seq[String]): Option[HList] =
@@ -65,17 +65,15 @@ object Router {
           }
       }
 
-    m[ROUTE](route.pathElements, split(uri))
+    // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
+    m(route.pathElements, split(uri)).map(_.asInstanceOf[Args])
   }
 
   def parse[ROUTE <: HList, T, Args <: HList]
     (mappedRoute: MappedRoute[ROUTE, T], uri: String)
     (implicit gen: Generic.Aux[T, Args],
               map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]): Option[T] =
-    parse(mappedRoute.route, uri).map { x =>
-      // Using asInstanceOf as a band aid since compiler isn't able to confirm the type.
-      gen.from(x.asInstanceOf[Args])
-    }
+    parse(mappedRoute.route, uri).map(gen.from)
 
   /**
     * Converts all the chunks of the path to `HR` using the passed `~>>` function.
