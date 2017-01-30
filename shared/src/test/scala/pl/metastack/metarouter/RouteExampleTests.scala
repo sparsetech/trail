@@ -26,25 +26,23 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "Matching root" should "just work" in {
-    Router.parse(Root, "/") shouldBe defined
+    assert(Router.parse("/") === Root)
   }
 
   "A Modified Simple example" should "just work" in {
     val UserInfo  = Root / "user" / Arg[String] / Arg[Boolean]
-    val userInfo  = Router.fill(UserInfo, "bob" :: false :: HNil)
-    val userInfo2 = Router.fill(Root / "user" / "bob" / false)
+    val userInfo  = Router.url(UserInfo, "bob" :: false :: HNil)
+    val userInfo2 = Router.url(Root / "user" / "bob" / false, HNil)
 
-    assert(Router.url(userInfo) === "/user/bob/false")
-    assert(userInfo.route === UserInfo)
+    assert(userInfo === "/user/bob/false")
+    assert(userInfo === userInfo2)
 
-    assert(Router.url(userInfo) === Router.url(userInfo2))
+    assert(Router.parse("/a/b/c") === Root / "a" / "b" / "c")
 
-    assert(Router.parse("/a/b/c") === Router.fill(Root / "a" / "b" / "c"))
+    val parsed = Router.parse(UserInfo, "/user/bob/true")
+    parsed shouldBe defined
 
-    Router.parse(UserInfo, "/user/bob/true") shouldBe defined
-    val parsedRoute = Router.parse(UserInfo, "/user/bob/true").get
-    assert(parsedRoute.route === UserInfo)
-    assert(parsedRoute.data == "bob" :: true :: HNil)
+    assert(parsed === Some("bob" :: true :: HNil))
 
     Router.parse(UserInfo, "/user/bob") shouldBe empty
     Router.parse(UserInfo, "/user/bob/true/true") shouldBe empty
@@ -60,25 +58,23 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
   "url()" should "work" in {
     case class UserInfo(user: String, details: Boolean)
+
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val url = Router.url(userInfo, "hello" :: false :: HNil)
+    val url      = Router.url(userInfo, "hello" :: false :: HNil)
+
     assert(url == "/user/hello/false")
   }
 
   "url()" should "work on mapped route" in {
     case class UserInfo(user: String, details: Boolean)
+
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
     val mapped   = Router.route[UserInfo](userInfo)
     val url      = Router.url(mapped, UserInfo("hello", false))
+    val url2     = Router.url(userInfo, "hello" :: false :: HNil)
+
     assert(url == "/user/hello/false")
-  }
-
-  "fill()" should "work on mapped route" in {
-    case class UserInfo(user: String, details: Boolean)
-    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
-
-    val r = Router.fill(userInfo, UserInfo("hello", false))
-    assert(r == Router.fill(userInfo.route, "hello" :: false :: HNil))
+    assert(url == url2)
   }
 
   "parse()" should "work on mapped route" in {

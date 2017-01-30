@@ -12,6 +12,4 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
     Route(pathElements :+ pe.toPathElement(a))
 }
 
-case class RouteData[ROUTE <: HList, DATA <: HList](route: Route[ROUTE], data: DATA)
-
 case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE])

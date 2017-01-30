@@ -34,11 +34,8 @@ object ParseableArg {
 }
 
 object Args {
-  trait Drop extends Poly1 {
-    implicit def default[T] = at[T](x => HNil)
-  }
-
-  object Convert extends Drop {
-    implicit def caseArg[T] = at[Arg[T]].apply[T :: HNil](_ => null.asInstanceOf[T] :: HNil)
+  object Convert extends Poly1 {
+    implicit def default    = at[String](x => HNil)
+    implicit def caseArg[T] = at[Arg[T]](_ => null.asInstanceOf[T] :: HNil)
   }
 }
