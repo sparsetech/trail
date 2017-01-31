@@ -1,11 +1,11 @@
 val MetaDocs   = "0.1.1"
 val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.8"
-val Scala2_12  = "2.12.0"
+val Scala2_12  = "2.12.1"
 val ScalaTest  = "3.0.1"
 val ScalaJsDom = "0.9.1"
-val Cats       = "0.8.1"
-val JGit       = "4.5.0.201609210915-r"
+val Cats       = "0.9.0"
+val JGit       = "4.6.0.201612231935-r"
 
 val SharedSettings = Seq(
   name := "MetaRouter",
