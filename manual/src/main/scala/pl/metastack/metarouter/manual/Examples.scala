@@ -20,42 +20,18 @@ object Examples extends SectionSupport {
   }
 
   section("map") {
-    case class Details(userId: Int)
-    val details = Router.route[Details](Root / "details" / Arg[Int])
     Router.parse(details, "/details/42")
   }
 
   section("parse") {
-    case class Details(userId: Int)
-    case class UserInfo(user: String, details: Boolean)
-
-    val details  = Router.route[Details](Root / "details" / Arg[Int])
-    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+    val details  = Root / "details" / Arg[Int]
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
     val routes = Router.create(details).orElse(userInfo)
-    routes.parse("/user/hello/false")
-  }
 
-  case class Details(userId: Int)
-  case class UserInfo(user: String, details: Boolean)
-
-  section("urls") {
-    val details  = Router.route[Details](Root / "details" / Arg[Int])
-    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
-
-    List(
-      Router.url(details, Details(42)),
-      Router.url(userInfo, UserInfo("test", true))
-    )
-  }
-
-  section("urls-implicit") {
-    implicit val details  = Router.route[Details](Root / "details" / Arg[Int])
-    implicit val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
-
-    List(
-      Router.url(Details(42)),
-      Router.url(UserInfo("test", true))
-    )
+    routes.parse("/user/hello/false").map {
+      case RouteData(r, a :: HNil) if r == details       => s"details: $a"
+      case RouteData(r, u :: d :: HNil) if r == userInfo => s"user: $u / $d"
+    }
   }
 }

@@ -19,14 +19,8 @@ Create a route:
 Create a string URL by filling the placeholders of the route:
 [scala type="section" value="url" file="Examples"]
 
-Map a route to a `case class` and parse an URL:
+Parse an URL:
 [scala type="section" value="map" file="Examples"]
 
 Create a routing table:
 [scala type="section" value="parse" file="Examples"]
-
-Create URLs from `case class`es:
-[scala type="section" value="urls" file="Examples"]
-
-Shorter with `implicit` keyword:
-[scala type="section" value="urls-implicit" file="Examples"]

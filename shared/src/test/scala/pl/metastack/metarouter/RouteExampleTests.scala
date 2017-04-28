@@ -57,45 +57,43 @@ class RouteExampleTests extends FlatSpec with Matchers {
   }
 
   "url()" should "work" in {
-    case class UserInfo(user: String, details: Boolean)
-
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
     val url      = Router.url(userInfo, "hello" :: false :: HNil)
 
     assert(url == "/user/hello/false")
   }
 
-  "url()" should "work on mapped route" in {
-    case class UserInfo(user: String, details: Boolean)
-
+  "parse()" should "work" in {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val mapped   = Router.route[UserInfo](userInfo)
-    val url      = Router.url(mapped, UserInfo("hello", false))
-    val url2     = Router.url(userInfo, "hello" :: false :: HNil)
 
-    assert(url == "/user/hello/false")
-    assert(url == url2)
-  }
-
-  "parse()" should "work on mapped route" in {
-    case class UserInfo(user: String, details: Boolean)
-    val userInfo = Router.route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
     assert(Router.parse(userInfo, "/user/hello/false")
-      .contains(UserInfo("hello", false)))
+      .contains("hello" :: false :: HNil))
   }
 
-  "Composed route" should "just work" in {
-    case class Details(userId: Int)
-    case class UserInfo(user: String, details: Boolean)
-    import Router.route
-
-    val details  = route[Details](Root / "details" / Arg[Int])
-    val userInfo = route[UserInfo](Root / "user" / Arg[String] / Arg[Boolean])
+  "Composed route" should "work" in {
+    val details  = Root / "details" / Arg[Int]
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
     val routes = Router.create(details).orElse(userInfo)
 
     assert(routes.parse("/user/hello/false")
-      .contains(UserInfo("hello", false)))
-    assert(routes.parse("/details/42").contains(Details(42)))
+      .contains(RouteData(userInfo, "hello" :: false :: HNil)))
+    assert(routes.parse("/details/42").contains(RouteData(details, 42 :: HNil)))
+  }
+
+  "Composed route" should "allow pattern matching" in {
+    import shapeless._
+
+    val details  = Root / "details" / Arg[Int]
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+
+    val routes = Router.create(details).orElse(userInfo)
+
+    val route = routes.parse("/user/hello/false").map {
+      case RouteData(r, a :: HNil     ) if r == details  => a.toString
+      case RouteData(r, u :: d :: HNil) if r == userInfo => u.toString + d.toString
+    }
+
+    assert(route.contains("hellofalse"))
   }
 }

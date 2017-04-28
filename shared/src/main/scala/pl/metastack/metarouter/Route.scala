@@ -12,4 +12,5 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
     Route(pathElements :+ pe.toPathElement(a))
 }
 
-case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE])
+case class RouteData[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
+                                                   (implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args])
