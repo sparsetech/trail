@@ -77,8 +77,8 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val routes = Router.create(details).orElse(userInfo)
 
     assert(routes.parse("/user/hello/false")
-      .contains(RouteData(userInfo, "hello" :: false :: HNil)))
-    assert(routes.parse("/details/42").contains(RouteData(details, 42 :: HNil)))
+      .contains((userInfo, "hello" :: false :: HNil)))
+    assert(routes.parse("/details/42").contains((details, 42 :: HNil)))
   }
 
   "Composed route" should "allow pattern matching" in {
@@ -90,8 +90,9 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val routes = Router.create(details).orElse(userInfo)
 
     val route = routes.parse("/user/hello/false").map {
-      case RouteData(r, a :: HNil     ) if r == details  => a.toString
-      case RouteData(r, u :: d :: HNil) if r == userInfo => u.toString + d.toString
+      case (`details`, (a: Int) :: HNil) => a.toString
+      case (`userInfo`, (u: String) :: (d: Boolean) :: HNil) => u + d
+      case _ => ""
     }
 
     assert(route.contains("hellofalse"))

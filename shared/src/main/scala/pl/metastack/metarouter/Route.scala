@@ -11,6 +11,3 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
 }
-
-case class RouteData[ROUTE <: HList, Args <: HList](route: Route[ROUTE], args: Args)
-                                                   (implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args])

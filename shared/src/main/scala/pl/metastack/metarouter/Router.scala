@@ -12,11 +12,11 @@ class Router[ROUTE <: HList, Args <: HList](parsers: List[Route[HList]]) {
   def orElse[R <: HList](other: Route[R]) =
     new Router[HList, HList](parsers :+ other.asInstanceOf[Route[HList]])
 
-  def parse(uri: String): Option[RouteData[ROUTE, Args]] =
-    parsers.foldLeft(Option.empty[RouteData[ROUTE, Args]]) { case (acc, cur) =>
+  def parse(uri: String): Option[(Route[_], Args)] =
+    parsers.foldLeft(Option.empty[(Route[_], Args)]) { case (acc, cur) =>
       acc.orElse(
         Router.parse[ROUTE, Args](cur.asInstanceOf[Route[ROUTE]], uri)(null)
-          .map(result => RouteData(cur.asInstanceOf[Route[ROUTE]], result)(null)))
+          .map(result => (cur.asInstanceOf[Route[HList]], result)))
     }
 }
 

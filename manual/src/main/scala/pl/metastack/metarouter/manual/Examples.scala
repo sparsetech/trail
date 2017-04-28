@@ -30,8 +30,9 @@ object Examples extends SectionSupport {
     val routes = Router.create(details).orElse(userInfo)
 
     routes.parse("/user/hello/false").map {
-      case RouteData(r, a :: HNil) if r == details       => s"details: $a"
-      case RouteData(r, u :: d :: HNil) if r == userInfo => s"user: $u / $d"
+      case (`details`,  (a: Int) :: HNil)                    => s"details: $a"
+      case (`userInfo`, (u: String) :: (d: Boolean) :: HNil) => s"user: $u / $d"
+      case _                                                 => ""
     }
   }
 }
