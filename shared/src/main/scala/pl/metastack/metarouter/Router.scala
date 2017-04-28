@@ -8,28 +8,12 @@ import shapeless._
 import shapeless.ops.hlist._
 import shapeless.poly._
 
-class Router[ROUTE <: HList, Args <: HList](parsers: List[Route[HList]]) {
-  def orElse[R <: HList](other: Route[R]) =
-    new Router[HList, HList](parsers :+ other.asInstanceOf[Route[HList]])
-
-  def parse(uri: String): Option[(Route[_], Args)] =
-    parsers.foldLeft(Option.empty[(Route[_], Args)]) { case (acc, cur) =>
-      acc.orElse(
-        Router.parse[ROUTE, Args](cur.asInstanceOf[Route[ROUTE]], uri)(null)
-          .map(result => (cur.asInstanceOf[Route[HList]], result)))
-    }
-}
-
 object Router {
   private[metarouter] def split(s: String): List[String] = {
     val x = s.stripPrefix("/")
     if (x.isEmpty) Nil
     else x.split('/').toList
   }
-
-  def create[ROUTE <: HList, L <: HList](route: Route[ROUTE])
-                                        (implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, L]) =
-    new Router[HList, HList](List(route.asInstanceOf[Route[HList]]))
 
   // TODO Figure out what to do with relative routes and query parameters
   def parse(s: String): Route[HList] =

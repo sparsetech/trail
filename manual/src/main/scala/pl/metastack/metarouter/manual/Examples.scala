@@ -27,12 +27,9 @@ object Examples extends SectionSupport {
     val details  = Root / "details" / Arg[Int]
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
-    val routes = Router.create(details).orElse(userInfo)
-
-    routes.parse("/user/hello/false").map {
-      case (`details`,  (a: Int) :: HNil)                    => s"details: $a"
-      case (`userInfo`, (u: String) :: (d: Boolean) :: HNil) => s"user: $u / $d"
-      case _                                                 => ""
+    "/user/hello/false" match {
+      case `details` (a :: HNil)      => s"details: $a"
+      case `userInfo`(u :: d :: HNil) => s"user: $u/$d"
     }
   }
 }
