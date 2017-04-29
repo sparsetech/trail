@@ -5,10 +5,6 @@ import org.scalatest._
 import shapeless.HNil
 
 class RouteExampleTests extends FlatSpec with Matchers {
-  "Matching root" should "just work" in {
-    assert(Router.parse("/") === Root)
-  }
-
   "A simple example" should "just work" in {
     val UserInfo  = Root / "user" / Arg[String] / Arg[Boolean]
     val userInfo  = Router.url(UserInfo, "bob" :: false :: HNil)
@@ -16,8 +12,6 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
     assert(userInfo === "/user/bob/false")
     assert(userInfo === userInfo2)
-
-    assert(Router.parse("/a/b/c") === Root / "a" / "b" / "c")
 
     val parsed = Router.parse(UserInfo, "/user/bob/true")
     parsed shouldBe defined

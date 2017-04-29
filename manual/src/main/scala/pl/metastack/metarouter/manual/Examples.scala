@@ -25,13 +25,23 @@ object Examples extends SectionSupport {
     Router.parse(details, "/details/42")
   }
 
+  section("query-params") {
+    val route = Root / "details" & Param[Boolean]("show")
+    Router.parse(route, "/details?show=false")
+  }
+
+  section("query-params-opt") {
+    val route = Root / "details" & Param[Int]("id") & ParamOpt[Boolean]("show")
+    Router.parse(route, "/details?id=42")
+  }
+
   section("parse") {
     val details  = Root / "details" / Arg[Int]
-    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
-    "/user/hello/false" match {
-      case `details` (a :: HNil)      => s"details: $a"
-      case `userInfo`(u :: d :: HNil) => s"user: $u/$d"
+    "/user/hello?show=false" match {
+      case `details` (a :: HNil)            => s"details: $a"
+      case `userInfo`(u :: HNil, s :: HNil) => s"user: $u, show: $s"
     }
   }
 
