@@ -24,3 +24,6 @@ Parse an URL:
 
 Create a routing table:
 [scala type="section" value="parse" file="Examples"]
+
+Define a custom argument type:
+[scala type="section" value="custom-arg" file="Examples"]

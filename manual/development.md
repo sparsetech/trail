@@ -1,5 +1,5 @@
 # Development
-[![Build Status](https://travis-ci.org/MetaStack-pl/MetaRouter.svg)](https://travis-ci.org/MetaStack-pl/MetaRouter)
+[![Build Status](https://api.travis-ci.org/MetaStack-pl/MetaRouter.svg)](https://travis-ci.org/MetaStack-pl/MetaRouter)
 
 ## Manual
 Run the following command to generate the manual:

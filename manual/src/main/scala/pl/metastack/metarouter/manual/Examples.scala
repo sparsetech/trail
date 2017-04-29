@@ -2,6 +2,8 @@ package pl.metastack.metarouter.manual
 
 import pl.metastack.metadocs.SectionSupport
 
+import scala.util.Try
+
 object Examples extends SectionSupport {
   section("route") {
     import shapeless._
@@ -31,5 +33,16 @@ object Examples extends SectionSupport {
       case `details` (a :: HNil)      => s"details: $a"
       case `userInfo`(u :: d :: HNil) => s"user: $u/$d"
     }
+  }
+
+  section("custom-arg") {
+    implicit case object IntSetArg extends ParseableArg[Set[Int]] {
+      override def urlDecode(s: String) =
+        Try(s.split(",").map(_.toInt).toSet).toOption
+      override def urlEncode(s: Set[Int]) = s.mkString(",")
+    }
+
+    val export = Root / "export" / Arg[Set[Int]]
+    Router.url(export, Set(1, 2, 3) :: HNil)
   }
 }
