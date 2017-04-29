@@ -10,7 +10,7 @@ val JGit       = "4.6.0.201612231935-r"
 val SharedSettings = Seq(
   name := "MetaRouter",
   organization := "pl.metastack",
-  scalaVersion := Scala2_11,
+  scalaVersion := Scala2_12,
   crossScalaVersions := Seq(Scala2_12, Scala2_11),
   scalacOptions := Seq(
     "-unchecked",
