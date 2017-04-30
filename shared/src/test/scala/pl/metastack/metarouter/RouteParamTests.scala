@@ -31,7 +31,7 @@ class RouteParamTests extends FunSpec with Matchers {
     val route = Root & Param[String]("test") & Param[String]("test")
     assert(route.route == Root)
     assert(route.params == Param[String]("test") :: Param[String]("test") :: HNil)
-    val url = Router.url(route, HNil, "value" :: "value2" :: HNil)
+    val url = route(HNil, "value" :: "value2" :: HNil)
     assert(url == "/?test=value&test=value2")
   }
 
@@ -39,110 +39,110 @@ class RouteParamTests extends FunSpec with Matchers {
     val route = Root & Param[String]("test") & Param[Int]("test")
     assert(route.route == Root)
     assert(route.params == Param[String]("test") :: Param[Int]("test") :: HNil)
-    val url = Router.url(route, HNil, "value" :: 42 :: HNil)
+    val url = route(HNil, "value" :: 42 :: HNil)
     assert(url == "/?test=value&test=42")
   }
 
   it("Generate URL of route with wrong parameter type") {
     """
     val route = Root & Param[Int]("test")
-    val url = Router.url(route, HNil, "value" :: HNil)
+    val url = route(HNil, "value" :: HNil)
     """ shouldNot typeCheck
   }
 
   it("Generate URL of route with one parameter") {
     val route = Root & Param[String]("test")
-    val url = Router.url(route, HNil, "value" :: HNil)
+    val url = route(HNil, "value" :: HNil)
     assert(url == "/?test=value")
 
-    val url2 = Router.url(route, HNil, "äöü" :: HNil)
+    val url2 = route(HNil, "äöü" :: HNil)
     assert(url2 == "/?test=%C3%A4%C3%B6%C3%BC")
   }
 
   it("Generate URL of route with two parameters") {
     val route = Root & Param[String]("test") & Param[Int]("test2")
-    val url = Router.url(route, HNil, "value" :: 42 :: HNil)
+    val url = route(HNil, "value" :: 42 :: HNil)
     assert(url == "/?test=value&test2=42")
   }
 
   it("Define URL of a route with optional parameter") {
     val route = Root & ParamOpt[Int]("test")
 
-    val url = Router.url(route, HNil, Option.empty[Int] :: HNil)
+    val url = route(HNil, Option.empty[Int] :: HNil)
     assert(url == "/")
 
-    val url2 = Router.url(route, HNil, Option(42) :: HNil)
+    val url2 = route(HNil, Option(42) :: HNil)
     assert(url2 == "/?test=42")
 
     // TODO The following does not work
-    // val url3 = Router.url(route, HNil, None :: HNil)
+    // val url3 = route, HNil, None :: HNil)
     // assert(url3 == "/")
 
-    // val url4 = Router.url(route, HNil, Some(42) :: HNil)
+    // val url4 = route, HNil, Some(42) :: HNil)
     // assert(url4 == "/?test=42")
   }
 
   it("Parsing route with one parameter") {
     val route = Root & Param[String]("test")
-    assert(Router.parse(route, "/?test=value")
+    assert(route.parse("/?test=value")
       .contains((HNil, "value" :: HNil)))
-    assert(Router.parse(route, "/?test=äöü").contains((HNil, "äöü" :: HNil)))
-    assert(Router.parse(route, "/?test=%C3%A4%C3%B6%C3%BC")
+    assert(route.parse("/?test=äöü").contains((HNil, "äöü" :: HNil)))
+    assert(route.parse("/?test=%C3%A4%C3%B6%C3%BC")
       .contains((HNil, "äöü" :: HNil)))
   }
 
   it("Parsing route with unspecified parameter") {
     val route = Root & Param[String]("test")
-    assert(Router.parse(route, "/").isEmpty)
-    assert(Router.parse(route, "/?test2=value").isEmpty)
+    assert(route.parse("/").isEmpty)
+    assert(route.parse("/?test2=value").isEmpty)
   }
 
   it("Parsing route with two parameters") {
     val route = Root & Param[String]("test") & Param[Int]("test2")
-    val parsed = Router.parse(route, "/?test=value&test2=42")
+    val parsed = route.parse("/?test=value&test2=42")
     assert(parsed.contains((HNil, "value" :: 42 :: HNil)))
   }
 
   it("Parsing route with additional parameters") {
     // Ignore parameters that are not specified in the route
     val route = Root & Param[String]("test")
-    val parsed = Router.parse(route, "/?test=value&test2=value2")
+    val parsed = route.parse("/?test=value&test2=value2")
     assert(parsed.contains((HNil, "value" :: HNil)))
   }
 
   it("Parsing non-root route with two optional parameters") {
     val route = Root / "register" & ParamOpt[String]("plan") & ParamOpt[String]("redirect")
-    assert(Router.parse(route, "/register?plan=test")
+    assert(route.parse("/register?plan=test")
       .contains((HNil, Option("test") :: Option.empty[String] :: HNil)))
-    assert(Router.parse(route, "/register?plan=test&redirect=test2")
+    assert(route.parse("/register?plan=test&redirect=test2")
       .contains((HNil, Option("test") :: Option("test2") :: HNil)))
-    assert(Router.parse(route, "/register?redirect=test2")
+    assert(route.parse("/register?redirect=test2")
       .contains((HNil, Option.empty[String] :: Option("test2") :: HNil)))
   }
 
   it("Parsing route with optional parameter") {
     val route = Root & ParamOpt[String]("test")
-    assert(Router.parse(route, "/")
+    assert(route.parse("/")
       .contains((HNil, Option.empty[String] :: HNil)))
-    assert(Router.parse(route, "/?test2=value")
+    assert(route.parse("/?test2=value")
       .contains((HNil, Option.empty[String] :: HNil)))
-    assert(Router.parse(route, "/?test=value")
+    assert(route.parse("/?test=value")
       .contains((HNil, Option("value") :: HNil)))
-    assert(Router.parse(route, "/?test=value&test2=value")
+    assert(route.parse("/?test=value&test2=value")
       .contains((HNil, Option("value") :: HNil)))
   }
 
   it("Parsing route with duplicated name") {
     val route = Root & Param[String]("test") & Param[String]("test")
-    assert(Router.parse(route, "/?test=v1&test=v2")
+    assert(route.parse("/?test=v1&test=v2")
       .contains((HNil, "v1" :: "v2" :: HNil)))
   }
 
   it("Parsing route with duplicated name and different types") {
     val route = Root & Param[Int]("test") & Param[String]("test")
     // When the two parameters have different types, the order matters
-    assert(Router.parse(route, "/?test=value&test=42").isEmpty)
-    assert(Router.parse(route, "/?test=42&test=value")
+    assert(route.parse("/?test=value&test=42").isEmpty)
+    assert(route.parse("/?test=42&test=value")
       .contains((HNil, 42 :: "value" :: HNil)))
   }
 

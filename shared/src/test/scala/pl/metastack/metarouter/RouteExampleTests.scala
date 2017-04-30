@@ -6,27 +6,27 @@ import shapeless.HNil
 
 class RouteExampleTests extends FlatSpec with Matchers {
   "A simple example" should "just work" in {
-    val UserInfo  = Root / "user" / Arg[String] / Arg[Boolean]
-    val userInfo  = Router.url(UserInfo, "bob" :: false :: HNil)
-    val userInfo2 = Router.url(Root / "user" / "bob" / false, HNil)
+    val userInfo     = Root / "user" / Arg[String] / Arg[Boolean]
+    val userInfoUrl  = userInfo("bob" :: false :: HNil)
+    val userInfo2    = (Root / "user" / "bob" / false).url(HNil)
 
-    assert(userInfo === "/user/bob/false")
-    assert(userInfo === userInfo2)
+    assert(userInfoUrl === "/user/bob/false")
+    assert(userInfoUrl === userInfo2)
 
-    val parsed = Router.parse(UserInfo, "/user/bob/true")
+    val parsed = userInfo.parse("/user/bob/true")
     parsed shouldBe defined
 
     assert(parsed === Some("bob" :: true :: HNil))
 
-    Router.parse(UserInfo, "/user/bob") shouldBe empty
-    Router.parse(UserInfo, "/user/bob/true/true") shouldBe empty
-    Router.parse(UserInfo, "/user/bob/1") shouldBe empty
-    Router.parse(UserInfo, "/usr/bob/1") shouldBe empty
+    userInfo.parse("/user/bob") shouldBe empty
+    userInfo.parse("/user/bob/true/true") shouldBe empty
+    userInfo.parse("/user/bob/1") shouldBe empty
+    userInfo.parse("/usr/bob/1") shouldBe empty
   }
 
   "url()" should "work" in {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
-    val url      = Router.url(userInfo, "hello" :: false :: HNil)
+    val url      = userInfo("hello" :: false :: HNil)
 
     assert(url == "/user/hello/false")
   }
@@ -34,7 +34,7 @@ class RouteExampleTests extends FlatSpec with Matchers {
   "parse()" should "work" in {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
-    assert(Router.parse(userInfo, "/user/hello/false")
+    assert(userInfo.parse("/user/hello/false")
       .contains("hello" :: false :: HNil))
   }
 
