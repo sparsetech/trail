@@ -75,10 +75,10 @@ class RouteParamTests extends FunSpec with Matchers {
     assert(url2 == "/?test=42")
 
     // TODO The following does not work
-    // val url3 = route, HNil, None :: HNil)
+    // val url3 = route(HNil, None :: HNil)
     // assert(url3 == "/")
 
-    // val url4 = route, HNil, Some(42) :: HNil)
+    // val url4 = route(HNil, Some(42) :: HNil)
     // assert(url4 == "/?test=42")
   }
 
