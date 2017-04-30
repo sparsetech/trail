@@ -31,7 +31,7 @@ class RouteParamTests extends FunSpec with Matchers {
     val route = Root & Param[String]("test") & Param[String]("test")
     assert(route.route == Root)
     assert(route.params == Param[String]("test") :: Param[String]("test") :: HNil)
-    val url = Router.url(route, HNil.asInstanceOf[HNil], "value" :: "value2" :: HNil)
+    val url = Router.url(route, HNil, "value" :: "value2" :: HNil)
     assert(url == "/?test=value&test=value2")
   }
 
@@ -39,46 +39,46 @@ class RouteParamTests extends FunSpec with Matchers {
     val route = Root & Param[String]("test") & Param[Int]("test")
     assert(route.route == Root)
     assert(route.params == Param[String]("test") :: Param[Int]("test") :: HNil)
-    val url = Router.url(route, HNil.asInstanceOf[HNil], "value" :: 42 :: HNil)
+    val url = Router.url(route, HNil, "value" :: 42 :: HNil)
     assert(url == "/?test=value&test=42")
   }
 
   it("Generate URL of route with wrong parameter type") {
     """
     val route = Root & Param[Int]("test")
-    val url = Router.url(route, HNil.asInstanceOf[HNil], "value" :: HNil)
+    val url = Router.url(route, HNil, "value" :: HNil)
     """ shouldNot typeCheck
   }
 
   it("Generate URL of route with one parameter") {
     val route = Root & Param[String]("test")
-    val url = Router.url(route, HNil.asInstanceOf[HNil], "value" :: HNil)
+    val url = Router.url(route, HNil, "value" :: HNil)
     assert(url == "/?test=value")
 
-    val url2 = Router.url(route, HNil.asInstanceOf[HNil], "äöü" :: HNil)
+    val url2 = Router.url(route, HNil, "äöü" :: HNil)
     assert(url2 == "/?test=%C3%A4%C3%B6%C3%BC")
   }
 
   it("Generate URL of route with two parameters") {
     val route = Root & Param[String]("test") & Param[Int]("test2")
-    val url = Router.url(route, HNil.asInstanceOf[HNil], "value" :: 42 :: HNil)
+    val url = Router.url(route, HNil, "value" :: 42 :: HNil)
     assert(url == "/?test=value&test2=42")
   }
 
   it("Define URL of a route with optional parameter") {
     val route = Root & ParamOpt[Int]("test")
 
-    val url = Router.url(route, HNil.asInstanceOf[HNil], Option.empty[Int] :: HNil)
+    val url = Router.url(route, HNil, Option.empty[Int] :: HNil)
     assert(url == "/")
 
-    val url2 = Router.url(route, HNil.asInstanceOf[HNil], Option(42) :: HNil)
+    val url2 = Router.url(route, HNil, Option(42) :: HNil)
     assert(url2 == "/?test=42")
 
     // TODO The following does not work
-    // val url3 = Router.url(route, HNil.asInstanceOf[HNil], None :: HNil)
+    // val url3 = Router.url(route, HNil, None :: HNil)
     // assert(url3 == "/")
 
-    // val url4 = Router.url(route, HNil.asInstanceOf[HNil], Some(42) :: HNil)
+    // val url4 = Router.url(route, HNil, Some(42) :: HNil)
     // assert(url4 == "/?test=42")
   }
 

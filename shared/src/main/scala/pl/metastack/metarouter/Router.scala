@@ -133,4 +133,15 @@ object Router {
       case a  => base + "?" + a
     }
   }
+
+  // Workaround for https://github.com/MetaStack-pl/MetaRouter/issues/18
+  def url[ROUTE <: HList](route: Route[ROUTE], args: HNil.type)(
+    implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, HNil]
+  ): String = url(route, args: HNil)
+
+  def url[ROUTE <: HList, Params <: HList, Args <: HList, ArgParams <: HList]
+    (paramRoute: ParamRoute[ROUTE, Params], args: HNil.type, params: ArgParams)
+    (implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, HNil],
+             ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
+    ): String = url(paramRoute, args: HNil, params)
 }

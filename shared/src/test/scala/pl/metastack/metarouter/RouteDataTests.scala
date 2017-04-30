@@ -7,7 +7,7 @@ class RouteDataTests extends WordSpec with Matchers {
   "A Route" when {
     "empty" should {
       "return root URL" in {
-        val url = Router.url(Root, HNil.asInstanceOf[HNil])  // TODO Remove cast
+        val url = Router.url(Root, HNil)
         assert(url === "/")
       }
     }

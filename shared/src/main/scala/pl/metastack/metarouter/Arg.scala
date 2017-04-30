@@ -54,14 +54,14 @@ object ParseableArg {
 
 object Args {
   object Convert extends Poly1 {
-    implicit def default    = at[String](_ => HNil)
-    implicit def caseArg[T] = at[Arg[T]](_ => null.asInstanceOf[T] :: HNil)
+    implicit def caseString = at[String](_ => HNil)
+    implicit def caseArg[T] = at[Arg[T]](_ => null: T :: HNil)
   }
 }
 
 object Params {
   object Convert extends Poly1 {
-    implicit def caseParam   [T] = at[Param   [T]](_ => null.asInstanceOf[T        ] :: HNil)
-    implicit def caseParamOpt[T] = at[ParamOpt[T]](_ => null.asInstanceOf[Option[T]] :: HNil)
+    implicit def caseParam   [T] = at[Param   [T]](_ => null: T         :: HNil)
+    implicit def caseParamOpt[T] = at[ParamOpt[T]](_ => null: Option[T] :: HNil)
   }
 }

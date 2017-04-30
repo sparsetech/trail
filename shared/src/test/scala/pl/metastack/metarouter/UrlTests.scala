@@ -7,7 +7,7 @@ class UrlTests extends WordSpec with Matchers  {
   "A Route" when {
     "empty" should {
       "create InstantiatedRoute" in {
-        Router.url(Root, HNil.asInstanceOf[HNil])  // TODO Remove cast
+        Router.url(Root, HNil)
       }
       "not compile InstantiatedRoute with args" in {
         "Router.url(Root, 1 :: HNil)" shouldNot typeCheck
