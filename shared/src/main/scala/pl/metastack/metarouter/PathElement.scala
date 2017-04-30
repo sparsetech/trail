@@ -28,7 +28,7 @@ object PathElement {
   }
 }
 
-// TODO: Write test for implicitNotFound Message
+// TODO Write test for implicitNotFound Message
 @implicitNotFound("${T} cannot be used as a Element in a Route path. (Missing typeclass instance for StaticElement[${T}])")
 trait StaticElement[T] extends PathElement[T] {
   override type E = String

@@ -10,6 +10,7 @@ object Route {
 case class Route[ROUTE <: HList](pathElements: ROUTE) {
   def /[T, E](a: T)(implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]) =
     Route(pathElements :+ pe.toPathElement(a))
-}
 
-case class MappedRoute[ROUTE <: HList, T](route: Route[ROUTE])
+  def unapply[Args <: HList](uri: String)(implicit map: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]): Option[Args] =
+    Router.parse(this, uri)
+}

@@ -4,7 +4,11 @@ import shapeless._
 
 import scala.util.Try
 
-case class Arg[T](implicit val parseableArg: ParseableArg[T])
+case class Arg_[T](parseableArg: ParseableArg[T])
+object Arg {
+  def apply[T](implicit parseableArg: ParseableArg[T]): Arg_[T] =
+    Arg_[T](parseableArg)
+}
 
 trait ParseableArg[T] {
   def urlDecode(s: String): Option[T]
