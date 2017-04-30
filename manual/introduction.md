@@ -31,3 +31,6 @@ Create a routing table:
 
 Define a custom argument type:
 [scala type="section" value="custom-arg" file="Examples"]
+
+Define a custom path element type:
+[scala type="section" value="custom-path-elem" file="Examples"]

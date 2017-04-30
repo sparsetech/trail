@@ -45,25 +45,24 @@ class RouteDataTests extends WordSpec with Matchers {
       }
     }
     "custom path element" should {
-      case class FooBar(foo: String)
-      implicit object FooStaticElement extends StaticElement[FooBar] {
-        def urlEncode(value: FooBar): String = value.foo
-      }
+      case class Foo(bar: String)
+      implicit object FooElement extends StaticElement[Foo](_.bar)
+
       "create URL" in {
-        val r = Root / FooBar("asdf")
+        val r = Root / Foo("asdf")
         val i = r(HNil)
         assert(i === "/asdf")
       }
     }
     "custom Arg element" should {
-      case class FooBar(foo: String)
-      implicit object FooParseableArg extends Codec[FooBar] {
-        def decode(s: String): Option[FooBar] = Option(s).map(FooBar)
-        def encode(s: FooBar): String = s.foo
+      case class Foo(bar: String)
+      implicit object FooCodec extends Codec[Foo] {
+        def encode(s: Foo): String = s.bar
+        def decode(s: String): Option[Foo] = Option(s).map(Foo)
       }
       "create URL" in {
-        val r = Root / Arg[FooBar]
-        val i = r(FooBar("dasd") :: HNil)
+        val r = Root / Arg[Foo]
+        val i = r(Foo("dasd") :: HNil)
         assert(i === "/dasd")
       }
     }

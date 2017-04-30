@@ -95,9 +95,9 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
   ): HR =
     pathElements.map(f).toList[HR].combineAll
 
-  def /[T, E](a: T)(
-    implicit pe: PathElement.Aux[T, E], prepend: Prepend[ROUTE, E :: HNil]
-  ) = Route(pathElements :+ pe.toPathElement(a))
+  def /[T, U](a: T)(
+    implicit pe: PathElement[T, U], prepend: Prepend[ROUTE, U :: HNil]
+  ) = Route(pathElements :+ pe.f(a))
 
   def &[T](param: Param[T]): ParamRoute[ROUTE, Param[T] :: HNil] =
     ParamRoute(this, param :: HNil)

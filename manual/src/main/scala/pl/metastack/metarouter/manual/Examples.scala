@@ -18,21 +18,21 @@ object Examples extends SectionSupport {
   val details = Root / "details" / Arg[Int]
 
   section("url") {
-    Router.url(details, 1 :: HNil)
+    details.url(1 :: HNil)  // Shorter: details(1 :: HNil)
   }
 
   section("map") {
-    Router.parse(details, "/details/42")
+    details.parse("/details/42")
   }
 
   section("query-params") {
     val route = Root / "details" & Param[Boolean]("show")
-    Router.parse(route, "/details?show=false")
+    route.parse("/details?show=false")
   }
 
   section("query-params-opt") {
     val route = Root / "details" & Param[Int]("id") & ParamOpt[Boolean]("show")
-    Router.parse(route, "/details?id=42")
+    route.parse("/details?id=42")
   }
 
   section("parse") {
@@ -47,12 +47,19 @@ object Examples extends SectionSupport {
 
   section("custom-arg") {
     implicit case object IntSetArg extends Codec[Set[Int]] {
-      override def decode(s: String) =
-        Try(s.split(",").map(_.toInt).toSet).toOption
-      override def encode(s: Set[Int]) = s.mkString(",")
+      override def encode(s: Set[Int]): String = s.mkString(",")
+      override def decode(s: String): Option[Set[Int]] =
+        Try(s.split(',').map(_.toInt).toSet).toOption
     }
 
     val export = Root / "export" / Arg[Set[Int]]
-    Router.url(export, Set(1, 2, 3) :: HNil)
+    export.url(Set(1, 2, 3) :: HNil)
+  }
+
+  section("custom-path-elem") {
+    case class Foo(bar: String)
+    implicit object FooElement extends StaticElement[Foo](_.bar)
+
+    (Root / Foo("asdf")).url()
   }
 }

@@ -76,9 +76,7 @@ class UrlTests extends WordSpec with Matchers  {
     }
     "custom path element" should {
       case class Foo(bar: String)
-      implicit object FooStaticElement extends StaticElement[Foo] {
-        def urlEncode(foo: Foo): String = foo.bar
-      }
+      implicit object FooElement extends StaticElement[Foo](_.bar)
       "create URL" in {
         val r = Root / Foo("asdf")
         assert(r(HNil) == "/asdf")
@@ -94,7 +92,7 @@ class UrlTests extends WordSpec with Matchers  {
       case class Foo(foo: String)
       implicit object FooCodec extends Codec[Foo] {
         override def encode(s: Foo): String = s.foo
-        override def decode(s: String): Option[Foo] = Option(s).map(Foo.apply)
+        override def decode(s: String): Option[Foo] = Option(s).map(Foo)
       }
       "create URL" in {
         val r = Root / Arg[Foo]

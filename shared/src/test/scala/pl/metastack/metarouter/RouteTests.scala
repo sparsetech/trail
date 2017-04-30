@@ -169,22 +169,20 @@ class RouteTests extends FreeSpec with Matchers {
       }
     }
     "when using a custom path element" - {
-      case class FooBar(foo: String)
-      implicit object FooStaticElement extends StaticElement[FooBar] {
-        override def urlEncode(value: FooBar): String = value.foo
-      }
+      case class Foo(foo: String)
+      implicit object FooElement extends StaticElement[Foo](_.foo)
       "should compile" in {
-        val r = Root / FooBar("asdf")
+        val r = Root / Foo("asdf")
       }
     }
     "when using a custom Arg element" - {
-      case class FooBar(foo: String)
-      implicit object FooCodec$ extends Codec[FooBar] {
-        override def decode(s: String) = Option(s).map(FooBar.apply)
-        override def encode(s: FooBar) = s.foo
+      case class Foo(bar: String)
+      implicit object FooCodec extends Codec[Foo] {
+        override def encode(s: Foo): String = s.bar
+        override def decode(s: String): Option[Foo] = Option(s).map(Foo)
       }
       "should compile" in {
-        val r = Root / Arg[FooBar]
+        val r = Root / Arg[Foo]
       }
     }
   }
