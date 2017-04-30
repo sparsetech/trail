@@ -171,7 +171,7 @@ class RouteTests extends FreeSpec with Matchers {
     "when using a custom path element" - {
       case class FooBar(foo: String)
       implicit object FooStaticElement extends StaticElement[FooBar] {
-        override def urlEncode(value: FooBar) = value.foo
+        override def urlEncode(value: FooBar): String = value.foo
       }
       "should compile" in {
         val r = Root / FooBar("asdf")

@@ -14,17 +14,23 @@ object PathElement {
 
   implicit def ArgsElement[T <: Arg[_]] = new PathElement[T] {
     override type E = T
-    override def toPathElement(t: T) = t
+    override def toPathElement(t: T): T = t
   }
 
   implicit object StringStaticElement extends StaticElement[String] {
-    override def urlEncode(value: String) = value
+    override def urlEncode(value: String): String = value
   }
+
   implicit object BooleanStaticElement extends StaticElement[Boolean] {
-    override def urlEncode(value: Boolean) = value.toString
+    override def urlEncode(value: Boolean): String = value.toString
   }
+
   implicit object IntStaticElement extends StaticElement[Int] {
-    override def urlEncode(value: Int) = value.toString
+    override def urlEncode(value: Int): String = value.toString
+  }
+
+  implicit object LongStaticElement extends StaticElement[Long] {
+    override def urlEncode(value: Long): String = value.toString
   }
 }
 

@@ -79,9 +79,9 @@ class UrlTests extends WordSpec with Matchers  {
       implicit object FooStaticElement extends StaticElement[FooBar] {
         def urlEncode(value: FooBar): String = value.foo
       }
-      "create an InstantiatedRoute" in {
+      "create URL" in {
         val r = Root / FooBar("asdf")
-        val i = Router.url(r, HNil)
+        assert(Router.url(r, HNil) == "/asdf")
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)
@@ -96,11 +96,9 @@ class UrlTests extends WordSpec with Matchers  {
         override def urlDecode(s: String) = Option(s).map(FooBar.apply)
         override def urlEncode(s: FooBar) = s.foo
       }
-      "create an InstantiatedRoute" in {
+      "create URL" in {
         val r = Root / Arg[FooBar]
-        val i = Router.url(r, FooBar("dasd") :: HNil)
-        import shapeless._
-        assert(i === "/dasd")
+        assert(Router.url(r, FooBar("dasd") :: HNil) == "/dasd")
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)
