@@ -179,9 +179,9 @@ class RouteTests extends FreeSpec with Matchers {
     }
     "when using a custom Arg element" - {
       case class FooBar(foo: String)
-      implicit object FooParseableArg extends ParseableArg[FooBar] {
-        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
-        override def urlEncode(s: FooBar) = s.foo
+      implicit object FooCodec$ extends Codec[FooBar] {
+        override def decode(s: String) = Option(s).map(FooBar.apply)
+        override def encode(s: FooBar) = s.foo
       }
       "should compile" in {
         val r = Root / Arg[FooBar]

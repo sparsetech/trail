@@ -46,10 +46,10 @@ object Examples extends SectionSupport {
   }
 
   section("custom-arg") {
-    implicit case object IntSetArg extends ParseableArg[Set[Int]] {
-      override def urlDecode(s: String) =
+    implicit case object IntSetArg extends Codec[Set[Int]] {
+      override def decode(s: String) =
         Try(s.split(",").map(_.toInt).toSet).toOption
-      override def urlEncode(s: Set[Int]) = s.mkString(",")
+      override def encode(s: Set[Int]) = s.mkString(",")
     }
 
     val export = Root / "export" / Arg[Set[Int]]

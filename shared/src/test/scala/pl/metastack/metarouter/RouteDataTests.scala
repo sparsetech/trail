@@ -57,9 +57,9 @@ class RouteDataTests extends WordSpec with Matchers {
     }
     "custom Arg element" should {
       case class FooBar(foo: String)
-      implicit object FooParseableArg extends ParseableArg[FooBar] {
-        def urlDecode(s: String): Option[FooBar] = Option(s).map(FooBar)
-        def urlEncode(s: FooBar): String = s.foo
+      implicit object FooParseableArg extends Codec[FooBar] {
+        def decode(s: String): Option[FooBar] = Option(s).map(FooBar)
+        def encode(s: FooBar): String = s.foo
       }
       "create URL" in {
         val r = Root / Arg[FooBar]

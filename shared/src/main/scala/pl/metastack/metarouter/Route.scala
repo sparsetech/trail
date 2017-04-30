@@ -43,7 +43,7 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
         case (HNil, HNil) => sb
         case ((h: String) :: t, _) => build(t, a)(s"$sb/$h")
         case ((a: Arg[_]) :: t, ah :: at) =>
-          build(t, at)(s"$sb/${a.asInstanceOf[Arg[Any]].parseableArg.urlEncode(ah)}")
+          build(t, at)(s"$sb/${a.asInstanceOf[Arg[Any]].codec.encode(ah)}")
       }
 
     build[ROUTE, Args](pathElements, args)("")
@@ -66,7 +66,7 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
         case ((rH: String)  #: rT, sH :: sT) if rH == sH => m(rT, sT)
         case ((rH: String)  #: rT, sH :: sT) => None
         case ((arg: Arg[_]) #: rT, sH :: sT) =>
-          arg.parseableArg.urlDecode(sH).flatMap { decoded =>
+          arg.codec.decode(sH).flatMap { decoded =>
             m(rT, sT).map(decoded :: _)
           }
       }
@@ -127,19 +127,19 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
     implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
              ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
   ): String = {
-    def compose(acc: String, arg: ParseableArg[Any], name: String, value: Any): String = {
+    def compose(acc: String, arg: Codec[Any], name: String, value: Any): String = {
       val ampersand = if (acc.isEmpty) "" else s"$acc&"
-      val encoded   = arg.urlEncode(value)
+      val encoded   = arg.encode(value)
       ampersand + name + "=" + URI.encode(encoded)
     }
 
     def build[R <: HList, A <: HList](r: R, a: A)(sb: String): String =
       (r, a) match {
         case ((ph: ParamOpt[_]) :: pt, Some(vh) :: vt) =>
-          build(pt, vt)(compose(sb, ph.asInstanceOf[ParamOpt[Any]].parseableArg,
+          build(pt, vt)(compose(sb, ph.asInstanceOf[ParamOpt[Any]].codec,
             ph.name, vh))
         case ((ph: Param[_]) :: pt, vh :: vt) =>
-          build(pt, vt)(compose(sb, ph.asInstanceOf[Param[Any]].parseableArg,
+          build(pt, vt)(compose(sb, ph.asInstanceOf[Param[Any]].codec,
             ph.name, vh))
         case _ => sb
       }
@@ -189,7 +189,7 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
         case (ph: Param[_]) :: pt =>
           for {
             result <- s.find(_._1 == ph.name)
-            decode <- ph.parseableArg.urlDecode(result._2)
+            decode <- ph.codec.decode(result._2)
             tail   <- m(pt, s.diff(List(result)))
           } yield decode :: tail
         case (ph: ParamOpt[_]) :: pt =>
@@ -197,7 +197,7 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
             case None => m(pt, s).map(None :: _)
             case Some(result) =>
               val acc   = m(pt, s.diff(List(result)))
-              val value = ph.parseableArg.urlDecode(result._2)
+              val value = ph.codec.decode(result._2)
               acc.map(value :: _)
           }
       }

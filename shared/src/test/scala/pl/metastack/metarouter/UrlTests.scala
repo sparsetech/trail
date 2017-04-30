@@ -75,12 +75,12 @@ class UrlTests extends WordSpec with Matchers  {
       }
     }
     "custom path element" should {
-      case class FooBar(foo: String)
-      implicit object FooStaticElement extends StaticElement[FooBar] {
-        def urlEncode(value: FooBar): String = value.foo
+      case class Foo(bar: String)
+      implicit object FooStaticElement extends StaticElement[Foo] {
+        def urlEncode(foo: Foo): String = foo.bar
       }
       "create URL" in {
-        val r = Root / FooBar("asdf")
+        val r = Root / Foo("asdf")
         assert(r(HNil) == "/asdf")
       }
       "not compile InstantiatedRoute with args" in {
@@ -91,14 +91,14 @@ class UrlTests extends WordSpec with Matchers  {
       }
     }
     "custom Arg element" should {
-      case class FooBar(foo: String)
-      implicit object FooParseableArg extends ParseableArg[FooBar] {
-        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
-        override def urlEncode(s: FooBar) = s.foo
+      case class Foo(foo: String)
+      implicit object FooCodec extends Codec[Foo] {
+        override def encode(s: Foo): String = s.foo
+        override def decode(s: String): Option[Foo] = Option(s).map(Foo.apply)
       }
       "create URL" in {
-        val r = Root / Arg[FooBar]
-        assert(r(FooBar("dasd") :: HNil) == "/dasd")
+        val r = Root / Arg[Foo]
+        assert(r(Foo("dasd") :: HNil) == "/dasd")
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)
