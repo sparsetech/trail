@@ -22,18 +22,23 @@ object PathParser {
       else List((pair(0), URI.decode(pair(1))))
     }.toList
 
-  def parse(url: String): Path = {
-    val withoutProtocol = url.indexOf("://") match {
+  /** Return URL without scheme, authority and fragment */
+  def parsePathAndQuery(url: String): String = {
+    val withoutScheme = url.indexOf("://") match {
       case -1 => url
       case i  => url.substring(i + 3)
     }
 
-    val withoutDomain = withoutProtocol.indexOf('/') match {
-      case -1 => withoutProtocol
-      case i  => withoutProtocol.substring(i)
+    val withoutAuthority = withoutScheme.indexOf('/') match {
+      case -1 => withoutScheme
+      case i  => withoutScheme.substring(i)
     }
 
-    val parsed = withoutDomain.takeWhile(_ != '#').split('?')
+    withoutAuthority.takeWhile(_ != '#')
+  }
+
+  def parse(url: String): Path = {
+    val parsed = parsePathAndQuery(url).split('?')
     val (path, query) = (parsed.head, parsed.tail.headOption)
     val args = query.toList.flatMap(parseArgs).toMap
 

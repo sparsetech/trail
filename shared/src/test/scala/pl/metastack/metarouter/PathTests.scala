@@ -7,6 +7,12 @@ class PathTests extends FunSuite {
     assert(PathParser.parse("http://example.com/test") == Path("/test"))
   }
 
+  test("Parse path and query components") {
+    assert(PathParser.parsePathAndQuery("http://example.com/test") == "/test")
+    assert(PathParser.parsePathAndQuery("http://example.com/test?a=b") == "/test?a=b")
+    assert(PathParser.parsePathAndQuery("http://example.com/test?a=b#frag") == "/test?a=b")
+  }
+
   test("Parse relative URL (root)") {
     assert(PathParser.parse("/") == Path("/"))
   }

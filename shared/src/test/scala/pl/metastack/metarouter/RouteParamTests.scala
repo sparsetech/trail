@@ -110,6 +110,16 @@ class RouteParamTests extends FunSpec with Matchers {
     assert(parsed.contains((HNil, "value" :: HNil)))
   }
 
+  it("Parsing non-root route with two optional parameters") {
+    val route = Root / "register" & ParamOpt[String]("plan") & ParamOpt[String]("redirect")
+    assert(Router.parse(route, "/register?plan=test")
+      .contains((HNil, Option("test") :: Option.empty[String] :: HNil)))
+    assert(Router.parse(route, "/register?plan=test&redirect=test2")
+      .contains((HNil, Option("test") :: Option("test2") :: HNil)))
+    assert(Router.parse(route, "/register?redirect=test2")
+      .contains((HNil, Option.empty[String] :: Option("test2") :: HNil)))
+  }
+
   it("Parsing route with optional parameter") {
     val route = Root & ParamOpt[String]("test")
     assert(Router.parse(route, "/")
