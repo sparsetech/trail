@@ -7,81 +7,79 @@ class UrlTests extends WordSpec with Matchers  {
   "A Route" when {
     "empty" should {
       "create InstantiatedRoute" in {
-        Router.url(Root, HNil.asInstanceOf[HNil])  // TODO Remove cast
+        Root(HNil)
       }
       "not compile InstantiatedRoute with args" in {
-        "Router.url(Root, 1 :: HNil)" shouldNot typeCheck
-        """Router.url(Root, "asdf" :: HNil)""" shouldNot typeCheck
+        "Root(1 :: HNil)" shouldNot typeCheck
+        """Root("asdf" :: HNil)""" shouldNot typeCheck
       }
     }
     "no Args" should {
       "create InstantiatedRoute" in {
         val r = Root / "asdf"
-        Router.url(r, HNil)
+        r(HNil)
       }
       "not compile InstantiatedRoute with args" in {
         """
         val r = Root / "asdf"
-        Router.url(r, 1 :: HNil)
+        r(1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / "asdf"
-        Router.url(r, "asdf" :: HNil)
+        r("asdf" :: HNil)
         """.stripMargin shouldNot typeCheck
       }
     }
     "one Arg" should {
-      "create InstantiatedRoute" in {
+      "create URL" in {
         val route = Root / "asdf" / Arg[Int]
-        Router.url(route, 1 :: HNil)
+        route(1 :: HNil)
       }
       "not compile with InstantiatedRoute with invalid arg type" in {
         """
         val r = Root / "asdf" / Arg[Int]
-        Router.url(r, "Route" :: HNil)
+        r("Route" :: HNil)
         """ shouldNot typeCheck
       }
       "not compile with InstantiatedRoute with invalid arg number" in {
         """
         val r = Root / "asdf" / Arg[Int]
-        Router.url(r, "Route" :: 1 :: HNil)
+        r("Route" :: 1 :: HNil)
         """ shouldNot typeCheck
       }
     }
     "multiple Args" should {
-      "create InstantiatedRoute" in {
+      "create URL" in {
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        Router.url(r, "Route" :: 1 :: HNil)
+        r("Route" :: 1 :: HNil)
       }
       "not compile with wrong argument order" in {
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        Router.url(r, 1 :: "Route" :: HNil)
+        r(1 :: "Route" :: HNil)
         """ shouldNot typeCheck
       }
       "not compile with wrong argument number" in {
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        Router.url(r, 1 :: 1 :: 1 :: HNil)
+        r(1 :: 1 :: 1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        Router.url(r, 1 :: HNil)
+        r(1 :: HNil)
         """ shouldNot typeCheck
         """
         val r = Root / Arg[String] / "asdf" / Arg[Int]
-        Router.url(r, "Route" :: 1 :: 1 :: HNil)
+        r("Route" :: 1 :: 1 :: HNil)
         """ shouldNot typeCheck
       }
     }
     "custom path element" should {
-      case class FooBar(foo: String)
-      implicit object FooStaticElement extends StaticElement[FooBar] {
-        def urlEncode(value: FooBar): String = value.foo
-      }
-      "create an InstantiatedRoute" in {
-        val r = Root / FooBar("asdf")
-        val i = Router.url(r, HNil)
+      case class Foo(bar: String)
+      implicit object FooElement extends StaticElement[Foo](_.bar)
+      "create URL" in {
+        val r = Root / Foo("asdf")
+        assert(r(HNil) == "/asdf")
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)
@@ -91,16 +89,14 @@ class UrlTests extends WordSpec with Matchers  {
       }
     }
     "custom Arg element" should {
-      case class FooBar(foo: String)
-      implicit object FooParseableArg extends ParseableArg[FooBar] {
-        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
-        override def urlEncode(s: FooBar) = s.foo
+      case class Foo(foo: String)
+      implicit object FooCodec extends Codec[Foo] {
+        override def encode(s: Foo): String = s.foo
+        override def decode(s: String): Option[Foo] = Option(s).map(Foo)
       }
-      "create an InstantiatedRoute" in {
-        val r = Root / Arg[FooBar]
-        val i = Router.url(r, FooBar("dasd") :: HNil)
-        import shapeless._
-        assert(i === "/dasd")
+      "create URL" in {
+        val r = Root / Arg[Foo]
+        assert(r(Foo("dasd") :: HNil) == "/dasd")
       }
       "not compile InstantiatedRoute with args" in {
         case class NoGood(bar: String)

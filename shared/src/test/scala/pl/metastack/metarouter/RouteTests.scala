@@ -12,7 +12,7 @@ class RouteTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
-      val r2 = Router.url(r1, HNil)
+      val r2 = r1(HNil)
       assert(!r1.canEqual(r2), "r1 should not be comparable to r2")
     }
     "cannot equal a non-route" in {
@@ -33,7 +33,7 @@ class RouteTests extends FreeSpec with Matchers {
       }
 
       val r = Root / "foo" / "bar"
-      Router.fold(r, chunkToStr) shouldBe "/foo/bar"
+      r.fold(chunkToStr) shouldBe "/foo/bar"
     }
     "when empty" - {
       "should compile" in {
@@ -49,9 +49,9 @@ class RouteTests extends FreeSpec with Matchers {
       "should compile" in {
         val r = Root / "asdf"
       }
-      "fill() with arguments should not compile" in {
+      "apply() with arguments should not compile" in {
         val r = Root / "asdf"
-        illTyped("Router.fill(r, 1 :: HNil)")
+        illTyped("r(1 :: HNil)")
       }
       "can compute its hashcode consistently" in {
         val r1 = Root / "asdf"
@@ -169,22 +169,20 @@ class RouteTests extends FreeSpec with Matchers {
       }
     }
     "when using a custom path element" - {
-      case class FooBar(foo: String)
-      implicit object FooStaticElement extends StaticElement[FooBar] {
-        override def urlEncode(value: FooBar) = value.foo
-      }
+      case class Foo(foo: String)
+      implicit object FooElement extends StaticElement[Foo](_.foo)
       "should compile" in {
-        val r = Root / FooBar("asdf")
+        val r = Root / Foo("asdf")
       }
     }
     "when using a custom Arg element" - {
-      case class FooBar(foo: String)
-      implicit object FooParseableArg extends ParseableArg[FooBar] {
-        override def urlDecode(s: String) = Option(s).map(FooBar.apply)
-        override def urlEncode(s: FooBar) = s.foo
+      case class Foo(bar: String)
+      implicit object FooCodec extends Codec[Foo] {
+        override def encode(s: Foo): String = s.bar
+        override def decode(s: String): Option[Foo] = Option(s).map(Foo)
       }
       "should compile" in {
-        val r = Root / Arg[FooBar]
+        val r = Root / Arg[Foo]
       }
     }
   }

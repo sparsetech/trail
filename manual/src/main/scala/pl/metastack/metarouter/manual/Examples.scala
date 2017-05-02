@@ -18,31 +18,48 @@ object Examples extends SectionSupport {
   val details = Root / "details" / Arg[Int]
 
   section("url") {
-    Router.url(details, 1 :: HNil)
+    details.url(1 :: HNil)  // Shorter: details(1 :: HNil)
   }
 
   section("map") {
-    Router.parse(details, "/details/42")
+    details.parse("/details/42")
+  }
+
+  section("query-params") {
+    val route = Root / "details" & Param[Boolean]("show")
+    route.parse("/details?show=false")
+  }
+
+  section("query-params-opt") {
+    val route = Root / "details" & Param[Int]("id") & ParamOpt[Boolean]("show")
+    route.parse("/details?id=42")
   }
 
   section("parse") {
     val details  = Root / "details" / Arg[Int]
-    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+    val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
-    "/user/hello/false" match {
-      case `details` (a :: HNil)      => s"details: $a"
-      case `userInfo`(u :: d :: HNil) => s"user: $u/$d"
+    "/user/hello?show=false" match {
+      case `details` (a :: HNil)            => s"details: $a"
+      case `userInfo`(u :: HNil, s :: HNil) => s"user: $u, show: $s"
     }
   }
 
   section("custom-arg") {
-    implicit case object IntSetArg extends ParseableArg[Set[Int]] {
-      override def urlDecode(s: String) =
-        Try(s.split(",").map(_.toInt).toSet).toOption
-      override def urlEncode(s: Set[Int]) = s.mkString(",")
+    implicit case object IntSetArg extends Codec[Set[Int]] {
+      override def encode(s: Set[Int]): String = s.mkString(",")
+      override def decode(s: String): Option[Set[Int]] =
+        Try(s.split(',').map(_.toInt).toSet).toOption
     }
 
     val export = Root / "export" / Arg[Set[Int]]
-    Router.url(export, Set(1, 2, 3) :: HNil)
+    export.url(Set(1, 2, 3) :: HNil)
+  }
+
+  section("custom-path-elem") {
+    case class Foo(bar: String)
+    implicit object FooElement extends StaticElement[Foo](_.bar)
+
+    (Root / Foo("asdf")).url()
   }
 }

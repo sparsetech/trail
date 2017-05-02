@@ -1,8 +1,6 @@
 [package value="pl.metastack.metarouter.manual"]
 # Introduction
-MetaRouter is a routing library for Scala and Scala.js.
-
-It allows to define type-safe routes that can be composed. Furthermore, routes can be mapped to `case class`es.
+MetaRouter is a routing library for Scala and Scala.js. It allows to define type-safe routes, generate URLs and perform pattern matching.
 
 ## Installation
 Add the following dependencies to your build configuration:
@@ -22,8 +20,17 @@ Create a string URL by filling the placeholders of the route:
 Parse an URL:
 [scala type="section" value="map" file="Examples"]
 
+Define and parse a route with a query parameter:
+[scala type="section" value="query-params" file="Examples"]
+
+A query parameter may be optional:
+[scala type="section" value="query-params-opt" file="Examples"]
+
 Create a routing table:
 [scala type="section" value="parse" file="Examples"]
 
 Define a custom argument type:
 [scala type="section" value="custom-arg" file="Examples"]
+
+Define a custom path element type:
+[scala type="section" value="custom-path-elem" file="Examples"]
