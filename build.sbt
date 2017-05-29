@@ -3,7 +3,6 @@ val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.11"
 val Scala2_12  = "2.12.2"
 val ScalaTest  = "3.0.3"
-val ScalaJsDom = "0.9.1"
 val Cats       = "0.9.0"
 val JGit       = "4.6.0.201612231935-r"
 
@@ -54,8 +53,6 @@ lazy val metaRouter = crossProject.in(file("."))
     )
   )
   .jsSettings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % ScalaJsDom,
-
     /* Use io.js for faster compilation of test cases */
     scalaJSStage in Global := FastOptStage
   )
