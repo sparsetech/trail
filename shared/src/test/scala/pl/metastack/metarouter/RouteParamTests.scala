@@ -151,8 +151,8 @@ class RouteParamTests extends FunSpec with Matchers {
     val route2 = Root & ParamOpt[String]("test2")
 
     val result = "/?test2=value" match {
-      case `route` (HNil, a :: HNil) => a
-      case `route2`(HNil, b :: HNil) => b
+      case route (HNil, a :: HNil) => a
+      case route2(HNil, b :: HNil) => b
     }
 
     assert(result == Some("value"))

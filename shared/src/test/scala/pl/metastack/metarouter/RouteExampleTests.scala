@@ -45,8 +45,8 @@ class RouteExampleTests extends FlatSpec with Matchers {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
     val result = "/user/hello/false" match {
-      case `details` (a :: HNil)      => a.toString
-      case `userInfo`(u :: d :: HNil) =>
+      case details (a :: HNil)      => a.toString
+      case userInfo(u :: d :: HNil) =>
         val user: String = u  // Verify that type inference works
         u + d
     }

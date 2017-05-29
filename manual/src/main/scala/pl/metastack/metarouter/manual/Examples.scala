@@ -40,8 +40,8 @@ object Examples extends SectionSupport {
     val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
     "/user/hello?show=false" match {
-      case `details` (a :: HNil)            => s"details: $a"
-      case `userInfo`(u :: HNil, s :: HNil) => s"user: $u, show: $s"
+      case details (a :: HNil)            => s"details: $a"
+      case userInfo(u :: HNil, s :: HNil) => s"user: $u, show: $s"
     }
   }
 
