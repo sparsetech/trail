@@ -1,36 +1,35 @@
-[package value="pl.metastack.metarouter.manual"]
 # Introduction
-MetaRouter is a routing library for Scala and Scala.js. It allows to define type-safe routes, generate URLs and perform pattern matching.
+Trail is a routing library for Scala and Scala.js. It allows to define type-safe routes, generate URLs and perform pattern matching.
 
 ## Installation
 Add the following dependencies to your build configuration:
 
 ```scala
-libraryDependencies += "pl.metastack" %%  "metarouter" % "%version%"  // Scala
-libraryDependencies += "pl.metastack" %%% "metarouter" % "%version%"  // Scala.js
+libraryDependencies += "tech.sparse" %%  "trail" % "%version%"  // Scala
+libraryDependencies += "tech.sparse" %%% "trail" % "%version%"  // Scala.js
 ```
 
 ## Example
 Create a route:
-[scala type="section" value="route" file="Examples"]
+[scala block="route"]
 
 Create a string URL by filling the placeholders of the route:
-[scala type="section" value="url" file="Examples"]
+[scala block="url"]
 
 Parse an URL:
-[scala type="section" value="map" file="Examples"]
+[scala block="map"]
 
 Define and parse a route with a query parameter:
-[scala type="section" value="query-params" file="Examples"]
+[scala block="query-params"]
 
 A query parameter may be optional:
-[scala type="section" value="query-params-opt" file="Examples"]
+[scala block="query-params-opt"]
 
 Create a routing table:
-[scala type="section" value="parse" file="Examples"]
+[scala block="parse"]
 
 Define a custom argument type:
-[scala type="section" value="custom-arg" file="Examples"]
+[scala block="custom-arg"]
 
 Define a custom path element type:
-[scala type="section" value="custom-path-elem" file="Examples"]
+[scala block="custom-path-elem"]

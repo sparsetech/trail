@@ -1,4 +1,4 @@
-package pl.metastack.metarouter
+package trail
 
 import scala.scalajs.js.URIUtils
 

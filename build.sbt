@@ -1,15 +1,15 @@
-val MetaDocs   = "0.1.1"
+val MetaDocs   = "0.1.2-SNAPSHOT"
 val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.11"
 val Scala2_12  = "2.12.2"
 val ScalaTest  = "3.0.3"
 val Cats       = "0.9.0"
-val JGit       = "4.6.0.201612231935-r"
+val Circe      = "0.8.0"
 
 val SharedSettings = Seq(
-  name := "MetaRouter",
-  organization := "pl.metastack",
-  scalaVersion := Scala2_12,
+  name := "trail",
+  organization := "tech.sparse",
+  scalaVersion := Scala2_11,  // Manual depends on 2.11
   crossScalaVersions := Seq(Scala2_12, Scala2_11),
   scalacOptions := Seq(
     "-unchecked",
@@ -17,7 +17,7 @@ val SharedSettings = Seq(
     "-encoding", "utf8"
   ),
   pomExtra :=
-    <url>https://github.com/MetaStack-pl/MetaRouter</url>
+    <url>https://github.com/sparsetech/trail</url>
     <licenses>
       <license>
         <name>Apache-2.0</name>
@@ -25,7 +25,7 @@ val SharedSettings = Seq(
       </license>
     </licenses>
     <scm>
-      <url>git@github.com:MetaStack-pl/MetaRouter.git</url>
+      <url>git@github.com:sparsetech/trail.git</url>
     </scm>
     <developers>
       <developer>
@@ -41,7 +41,7 @@ lazy val root = project.in(file("."))
   .settings(SharedSettings: _*)
   .settings(publishArtifact := false)
 
-lazy val metaRouter = crossProject.in(file("."))
+lazy val trail = crossProject.in(file("."))
   .settings(SharedSettings: _*)
   .settings(
     autoAPIMappings := true,
@@ -57,18 +57,19 @@ lazy val metaRouter = crossProject.in(file("."))
     scalaJSStage in Global := FastOptStage
   )
 
-lazy val js  = metaRouter.js
-lazy val jvm = metaRouter.jvm
+lazy val js  = trail.js
+lazy val jvm = trail.jvm
 
 lazy val manual = project.in(file("manual"))
   .dependsOn(jvm)
-  .enablePlugins(BuildInfoPlugin)
   .settings(SharedSettings: _*)
   .settings(
+    name := "manual",
     publishArtifact := false,
     libraryDependencies ++= Seq(
-      "pl.metastack" %% "metadocs" % MetaDocs,
-      "org.eclipse.jgit" % "org.eclipse.jgit" % JGit),
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "pl.metastack.metarouter",
-    name := "MetaRouter manual")
+      "pl.metastack" %% "metadocs"      % MetaDocs,
+      "io.circe"     %% "circe-core"    % Circe,
+      "io.circe"     %% "circe-generic" % Circe,
+      "io.circe"     %% "circe-parser"  % Circe
+    )
+  )

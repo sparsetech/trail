@@ -1,4 +1,4 @@
-package pl.metastack.metarouter
+package trail
 
 import cats.kernel.Monoid
 import cats.{Id => _, _}

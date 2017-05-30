@@ -1,4 +1,4 @@
-package pl.metastack.metarouter
+package trail
 
 import cats.Monoid
 import cats.syntax.all._
@@ -180,7 +180,7 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
     implicit prepend: Prepend[Params, ParamOpt[T] :: HNil]
   ) = copy(params = params :+ param)
 
-  private [metarouter] def parseQuery[Args <: HList](query: String)(
+  private [trail] def parseQuery[Args <: HList](query: String)(
     implicit ev: FlatMapper.Aux[Params.Convert.type, Params, Args]
   ): Option[Args] = {
     def m[R <: HList](r: R, s: List[(String, String)]): Option[HList] =

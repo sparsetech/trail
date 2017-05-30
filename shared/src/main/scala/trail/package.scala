@@ -1,6 +1,4 @@
-package pl.metastack
-
-package object metarouter {
+package object trail {
   val Root = Route.Root
   val !#   = Root
 

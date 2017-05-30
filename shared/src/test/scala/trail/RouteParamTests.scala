@@ -1,4 +1,4 @@
-package pl.metastack.metarouter
+package trail
 
 import org.scalatest._
 import shapeless._

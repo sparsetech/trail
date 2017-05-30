@@ -1,0 +1,34 @@
+{
+  "map" : {
+    "code" : "println(details.parse(\"/details/42\"))",
+    "result" : "Some(42 :: HNil)"
+  },
+  "url" : {
+    "code" : "println(details.url(1 :: HNil))  // Shorter: details(1 :: HNil)",
+    "result" : "/details/1"
+  },
+  "custom-arg" : {
+    "code" : "import scala.util.Try\nimplicit case object IntSetArg extends Codec[Set[Int]] {\n  override def encode(s: Set[Int]): String = s.mkString(\",\")\n  override def decode(s: String): Option[Set[Int]] =\n    Try(s.split(',').map(_.toInt).toSet).toOption\n}\n\nval export = Root / \"export\" / Arg[Set[Int]]\nprintln(export.url(Set(1, 2, 3) :: HNil))",
+    "result" : "/export/1,2,3"
+  },
+  "query-params-opt" : {
+    "code" : "val routeParamsOpt = Root / \"details\" & Param[Int](\"id\") & ParamOpt[Boolean](\"show\")\nprintln(routeParamsOpt.parse(\"/details?id=42\"))",
+    "result" : "Some((HNil,42 :: None :: HNil))"
+  },
+  "parse" : {
+    "code" : "val userInfo = Root / \"user\" / Arg[String] & Param[Boolean](\"show\")\n\nval result = \"/user/hello?show=false\" match {\n  case details (a :: HNil)            => s\"details: $a\"\n  case userInfo(u :: HNil, s :: HNil) => s\"user: $u, show: $s\"\n}\nprintln(result)",
+    "result" : "user: hello, show: false"
+  },
+  "query-params" : {
+    "code" : "val route = Root / \"details\" & Param[Boolean](\"show\")\nprintln(route.parse(\"/details?show=false\"))",
+    "result" : "Some((HNil,false :: HNil))"
+  },
+  "route" : {
+    "code" : "import trail._\nimport shapeless._\n\nval details = Root / \"details\" / Arg[Int]\nprintln(details)",
+    "result" : "Route(details :: Arg_(IntArg) :: HNil)"
+  },
+  "custom-path-elem" : {
+    "code" : "case class Foo(bar: String)\nimplicit object FooElement extends StaticElement[Foo](_.bar)\n\nprintln((Root / Foo(\"asdf\")).url())",
+    "result" : "/asdf"
+  }
+}

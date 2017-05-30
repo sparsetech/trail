@@ -1,17 +1,29 @@
-# MetaRouter
-[![Build Status](https://travis-ci.org/MetaStack-pl/MetaRouter.svg)](https://travis-ci.org/MetaStack-pl/MetaRouter)
-[![Join the chat at https://gitter.im/MetaStack-pl/MetaRouter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MetaStack-pl/MetaRouter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Trail
+[![Build Status](https://travis-ci.org/sparsetech/trail.svg)](https://travis-ci.org/sparsetech/trail)
+[![Join the chat at https://gitter.im/sparsetech/trail](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sparsetech/trail?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Maven Central](https://img.shields.io/maven-central/v/tech.sparse/trail.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22sparse.tech%22)
 
-MetaRouter is a routing library for Scala and Scala.js.
+Trail is a routing library for Scala and Scala.js.
+
+## Example
+```scala
+import trail._
+import shapeless._
+
+val details  = Root / "details" / Arg[Int]
+val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
+
+val result = "/user/hello?show=false" match {
+  case details (a :: HNil)            => s"details: $a"
+  case userInfo(u :: HNil, s :: HNil) => s"user: $u, show: $s"
+}
+```
 
 ## Links
-* [Single-page manual](http://metastack.pl/metarouter/latest.html)
-* [Multi-page manual](http://metastack.pl/metarouter/latest/index.html)
-* [ScalaDoc](https://www.javadoc.io/doc/pl.metastack/metarouter_2.11/)
-* [Versions](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.metastack%22%20AND%20a%3A%22metarouter_2.11%22)
+* [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/trail/)
 
-## License
-MetaRouter is licensed under the terms of the Apache v2.0 license.
+## Licence
+Trail is licensed under the terms of the Apache v2.0 license.
 
 ## Authors
 * Tim Nieradzik

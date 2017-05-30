@@ -1,15 +1,9 @@
 # Development
-[![Build Status](https://api.travis-ci.org/MetaStack-pl/MetaRouter.svg)](https://travis-ci.org/MetaStack-pl/MetaRouter)
+[![Build Status](https://api.travis-ci.org/sparsetech/trail.svg)](https://travis-ci.org/sparsetech/trail)
 
 ## Manual
-Run the following command to generate the manual:
+Run the following command to generate the listings for the manual:
 
 ```bash
-$ sbt manual/runMain pl.metastack.metarouter.manual.Manual
-```
-
-Deploy it with:
-
-```bash
-$ sbt manual/runMain pl.metastack.metarouter.manual.Deploy
+$ sbt manual/runMain trail.manual.Listings
 ```

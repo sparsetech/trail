@@ -1,4 +1,4 @@
-package pl.metastack.metarouter
+package trail
 
 case class Path(path: String, args: Map[String, String] = Map.empty) {
   def url: String =
