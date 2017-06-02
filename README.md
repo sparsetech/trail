@@ -23,7 +23,7 @@ val result = "/user/hello?show=false" match {
 * [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/trail/)
 
 ## Licence
-Trail is licensed under the terms of the Apache v2.0 license.
+Trail is licensed under the terms of the Apache v2.0 licence.
 
 ## Authors
 * Tim Nieradzik
