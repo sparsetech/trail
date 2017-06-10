@@ -20,7 +20,8 @@ val result = "/user/hello?show=false" match {
 ```
 
 ## Links
-* [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/trail/)
+* [Documentation](http://sparse.tech/opensource/trail.html)
+* [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/trail_2.12/)
 
 ## Licence
 Trail is licensed under the terms of the Apache v2.0 licence.
