@@ -1,4 +1,4 @@
-val MetaDocs   = "0.1.2-SNAPSHOT"
+// val MetaDocs   = "0.1.2-SNAPSHOT"
 val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.11"
 val Scala2_12  = "2.12.2"
@@ -9,7 +9,7 @@ val Circe      = "0.8.0"
 val SharedSettings = Seq(
   name := "trail",
   organization := "tech.sparse",
-  scalaVersion := Scala2_11,  // Manual depends on 2.11
+  scalaVersion := Scala2_12,
   crossScalaVersions := Seq(Scala2_12, Scala2_11),
   scalacOptions := Seq(
     "-unchecked",
@@ -60,7 +60,7 @@ lazy val trail = crossProject.in(file("."))
 lazy val js  = trail.js
 lazy val jvm = trail.jvm
 
-lazy val manual = project.in(file("manual"))
+/*lazy val manual = project.in(file("manual"))
   .dependsOn(jvm)
   .settings(SharedSettings: _*)
   .settings(
@@ -72,4 +72,4 @@ lazy val manual = project.in(file("manual"))
       "io.circe"     %% "circe-generic" % Circe,
       "io.circe"     %% "circe-parser"  % Circe
     )
-  )
+  )*/
