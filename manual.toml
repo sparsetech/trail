@@ -1,0 +1,20 @@
+[meta]
+title         = "Trail User Manual"
+author        = "Tim Nieradzik"
+affiliation   = "sparse.tech"
+abstract      = "Routing library for Scala and Scala.js"
+language      = "en-GB"
+editSourceUrl = "https://github.com/sparsetech/trail/edit/master/"
+
+[build]
+paths = [
+  "manual/introduction.md",
+  "manual/development.md",
+  "manual/support.md"
+]
+
+[constants]
+inherit = "version.sbt"
+
+[listings]
+path = "manual/listings.json"
