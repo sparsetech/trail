@@ -138,6 +138,8 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
         case ((ph: ParamOpt[_]) :: pt, Some(vh) :: vt) =>
           build(pt, vt)(compose(sb, ph.asInstanceOf[ParamOpt[Any]].codec,
             ph.name, vh))
+        case ((ph: ParamOpt[_]) :: pt, None :: vt) =>
+          build(pt, vt)(sb)
         case ((ph: Param[_]) :: pt, vh :: vt) =>
           build(pt, vt)(compose(sb, ph.asInstanceOf[Param[Any]].codec,
             ph.name, vh))

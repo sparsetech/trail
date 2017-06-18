@@ -31,6 +31,13 @@ class RouteExampleTests extends FlatSpec with Matchers {
     assert(url == "/user/hello/false")
   }
 
+  "url()" should "work with multiple optional parameters" in {
+    val list = Root / "list" & ParamOpt[Int]("num") & ParamOpt[Boolean]("upload")
+    val url  = list(HNil, Option.empty[Int] :: Option(true) :: HNil)
+
+    assert(url == "/list?upload=true")
+  }
+
   "parse()" should "work" in {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
