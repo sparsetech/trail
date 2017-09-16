@@ -4,6 +4,6 @@
 ## Manual
 Run the following command to generate the listings for the manual:
 
-```bash
+```shell
 $ sbt manual/runMain trail.manual.Listings
 ```

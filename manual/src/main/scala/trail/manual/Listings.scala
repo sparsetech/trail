@@ -8,28 +8,28 @@ object Listings extends App {
   import Notebook._
   implicit val session = Session()
 
-  block("route")
+  listing("route")
   import trail._
   import shapeless._
 
   val details = Root / "details" / Arg[Int]
   println(details)
 
-  block("url")
+  listing("url")
   println(details.url(1 :: HNil))  // Shorter: details(1 :: HNil)
 
-  block("map")
+  listing("map")
   println(details.parse("/details/42"))
 
-  block("query-params")
+  listing("query-params")
   val route = Root / "details" & Param[Boolean]("show")
   println(route.parse("/details?show=false"))
 
-  block("query-params-opt")
+  listing("query-params-opt")
   val routeParamsOpt = Root / "details" & Param[Int]("id") & ParamOpt[Boolean]("show")
   println(routeParamsOpt.parse("/details?id=42"))
 
-  block("parse")
+  listing("parse")
   val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
   val result = "/user/hello?show=false" match {
@@ -38,7 +38,7 @@ object Listings extends App {
   }
   println(result)
 
-  block("custom-arg")
+  listing("custom-arg")
   import scala.util.Try
   implicit case object IntSetArg extends Codec[Set[Int]] {
     override def encode(s: Set[Int]): String = s.mkString(",")
@@ -49,7 +49,7 @@ object Listings extends App {
   val export = Root / "export" / Arg[Set[Int]]
   println(export.url(Set(1, 2, 3) :: HNil))
 
-  block("custom-path-elem")
+  listing("custom-path-elem")
   case class Foo(bar: String)
   implicit object FooElement extends StaticElement[Foo](_.bar)
 
