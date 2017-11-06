@@ -1,4 +1,4 @@
-# Trail
+# <img src="http://sparse.tech/opensource/icons/trail.svg" width="50%">
 [![Build Status](https://travis-ci.org/sparsetech/trail.svg)](https://travis-ci.org/sparsetech/trail)
 [![Join the chat at https://gitter.im/sparsetech/trail](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sparsetech/trail?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/tech.sparse/trail_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tech.sparse/trail_2.12)
