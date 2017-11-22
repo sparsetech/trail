@@ -1,8 +1,8 @@
 // val MetaDocs   = "0.1.2-SNAPSHOT"
 val Shapeless  = "2.3.2"
 val Scala2_11  = "2.11.11"
-val Scala2_12  = "2.12.2"
-val ScalaTest  = "3.0.3"
+val Scala2_12  = "2.12.4"
+val ScalaTest  = "3.0.4"
 val Cats       = "0.9.0"
 val Circe      = "0.8.0"
 
