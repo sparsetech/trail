@@ -11,25 +11,25 @@ libraryDependencies += "tech.sparse" %%% "trail" % "%version%"  // Scala.js
 
 ## Example
 Create a route:
-%code(route)
+<listing id="route">
 
 Create a string URL by filling the placeholders of the route:
-%code(url)
+<listing id="url">
 
 Parse an URL:
-%code(map)
+<listing id="map">
 
 Define and parse a route with a query parameter:
-%code(query-params)
+<listing id="query-params">
 
 A query parameter may be optional:
-%code(query-params-opt)
+<listing id="query-params-opt">
 
 Create a routing table:
-%code(parse)
+<listing id="parse">
 
 Define a custom argument type:
-%code(custom-arg)
+<listing id="custom-arg">
 
 Define a custom path element type:
-%code(custom-path-elem)
+<listing id="custom-path-elem">

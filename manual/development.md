@@ -5,5 +5,11 @@
 Run the following command to generate the listings for the manual:
 
 ```shell
-$ sbt manual/runMain trail.manual.Listings
+$ sbt manual/run
+```
+
+The manual was generated using [Instructor](https://github.com/sparsetech/instructor). Follow its installation instructions, then run the following command:
+
+```shell
+instructor manual.toml
 ```

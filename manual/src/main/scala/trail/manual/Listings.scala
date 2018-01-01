@@ -1,11 +1,8 @@
 package trail.manual
 
-import java.io.{File, FileWriter}
-
-import pl.metastack.metadocs._
+import leaf.notebook._
 
 object Listings extends App {
-  import Notebook._
   implicit val session = Session()
 
   listing("route")
@@ -56,14 +53,5 @@ object Listings extends App {
   println((Root / Foo("asdf")).url())
 
   end()
-
-  val blocks = session.serialiseBlocks()
-  println(s"Found ${blocks.size} blocks")
-
-  val output = new File("manual/listings.json")
-
-  import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
-  val fw = new FileWriter(output)
-  fw.write(blocks.asJson.spaces2)
-  fw.close()
+  write("manual/listings.json")
 }

@@ -1,5 +1,4 @@
 [meta]
-type          = "book"
 title         = "Trail User Manual"
 author        = "Tim Nieradzik"
 affiliation   = "sparse.tech"
@@ -13,6 +12,9 @@ paths = [
   "manual/development.md",
   "manual/support.md"
 ]
+
+[output]
+highlightJsStyle = "tomorrow"
 
 [constants]
 inherit = "version.sbt"

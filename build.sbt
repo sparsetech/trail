@@ -1,10 +1,9 @@
-// val MetaDocs   = "0.1.2-SNAPSHOT"
-val Shapeless  = "2.3.2"
+val Leaf       = "0.1.0"
+val Shapeless  = "2.3.3"
 val Scala2_11  = "2.11.11"
 val Scala2_12  = "2.12.4"
 val ScalaTest  = "3.0.4"
 val Cats       = "0.9.0"
-val Circe      = "0.8.0"
 
 val SharedSettings = Seq(
   name := "trail",
@@ -60,16 +59,11 @@ lazy val trail = crossProject.in(file("."))
 lazy val js  = trail.js
 lazy val jvm = trail.jvm
 
-/*lazy val manual = project.in(file("manual"))
+lazy val manual = project.in(file("manual"))
   .dependsOn(jvm)
   .settings(SharedSettings: _*)
   .settings(
     name := "manual",
     publishArtifact := false,
-    libraryDependencies ++= Seq(
-      "pl.metastack" %% "metadocs"      % MetaDocs,
-      "io.circe"     %% "circe-core"    % Circe,
-      "io.circe"     %% "circe-generic" % Circe,
-      "io.circe"     %% "circe-parser"  % Circe
-    )
-  )*/
+    libraryDependencies += "tech.sparse" %% "leaf-notebook" % Leaf
+  )
