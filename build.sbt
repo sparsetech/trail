@@ -1,9 +1,9 @@
 val Leaf       = "0.1.0"
 val Shapeless  = "2.3.3"
-val Scala2_11  = "2.11.11"
-val Scala2_12  = "2.12.4"
-val ScalaTest  = "3.0.4"
-val Cats       = "0.9.0"
+val Scala2_11  = "2.11.12"
+val Scala2_12  = "2.12.7"
+val ScalaTest  = "3.0.5"
+val Cats       = "1.4.0"
 
 val SharedSettings = Seq(
   name := "trail",
@@ -47,7 +47,7 @@ lazy val trail = crossProject.in(file("."))
     apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
     libraryDependencies ++= Seq(
       "com.chuusai"   %%% "shapeless" % Shapeless,
-      "org.typelevel" %%% "cats"      % Cats,
+      "org.typelevel" %%% "cats-core" % Cats,
       "org.scalatest" %%% "scalatest" % ScalaTest % "test"
     )
   )
