@@ -1,3 +1,6 @@
+// shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+
 val Leaf       = "0.1.0"
 val Shapeless  = "2.3.3"
 val Scala2_11  = "2.11.12"
@@ -35,12 +38,9 @@ val SharedSettings = Seq(
     </developers>
 )
 
-lazy val root = project.in(file("."))
-  .aggregate(js, jvm)
-  .settings(SharedSettings: _*)
-  .settings(publishArtifact := false)
-
-lazy val trail = crossProject.in(file("."))
+lazy val trail = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("."))
   .settings(SharedSettings: _*)
   .settings(
     autoAPIMappings := true,
@@ -56,11 +56,8 @@ lazy val trail = crossProject.in(file("."))
     scalaJSStage in Global := FastOptStage
   )
 
-lazy val js  = trail.js
-lazy val jvm = trail.jvm
-
 lazy val manual = project.in(file("manual"))
-  .dependsOn(jvm)
+  .dependsOn(trail.jvm)
   .settings(SharedSettings: _*)
   .settings(
     name := "manual",
