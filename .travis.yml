@@ -4,3 +4,5 @@ scala:
   - 2.12.7
 jdk:
   - oraclejdk8
+script:
+  sbt ++$TRAVIS_SCALA_VERSION trailJS/test trailJVM/test
