@@ -1,9 +1,12 @@
+// shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+
 val Leaf       = "0.1.0"
 val Shapeless  = "2.3.3"
-val Scala2_11  = "2.11.11"
-val Scala2_12  = "2.12.4"
-val ScalaTest  = "3.0.4"
-val Cats       = "0.9.0"
+val Scala2_11  = "2.11.12"
+val Scala2_12  = "2.12.7"
+val ScalaTest  = "3.0.5"
+val Cats       = "1.4.0"
 
 val SharedSettings = Seq(
   name := "trail",
@@ -35,19 +38,16 @@ val SharedSettings = Seq(
     </developers>
 )
 
-lazy val root = project.in(file("."))
-  .aggregate(js, jvm)
-  .settings(SharedSettings: _*)
-  .settings(publishArtifact := false)
-
-lazy val trail = crossProject.in(file("."))
+lazy val trail = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("."))
   .settings(SharedSettings: _*)
   .settings(
     autoAPIMappings := true,
     apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
     libraryDependencies ++= Seq(
       "com.chuusai"   %%% "shapeless" % Shapeless,
-      "org.typelevel" %%% "cats"      % Cats,
+      "org.typelevel" %%% "cats-core" % Cats,
       "org.scalatest" %%% "scalatest" % ScalaTest % "test"
     )
   )
@@ -56,11 +56,8 @@ lazy val trail = crossProject.in(file("."))
     scalaJSStage in Global := FastOptStage
   )
 
-lazy val js  = trail.js
-lazy val jvm = trail.jvm
-
 lazy val manual = project.in(file("manual"))
-  .dependsOn(jvm)
+  .dependsOn(trail.jvm)
   .settings(SharedSettings: _*)
   .settings(
     name := "manual",
