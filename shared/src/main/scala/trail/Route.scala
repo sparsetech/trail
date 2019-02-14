@@ -104,6 +104,9 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
 
   def &[T](param: ParamOpt[T]): ParamRoute[ROUTE, ParamOpt[T] :: HNil] =
     ParamRoute(this, param :: HNil)
+
+  def &[T](param: Fragment[T]): ParamRoute[ROUTE, Fragment[T] :: HNil] =
+    ParamRoute(this, param :: HNil)
 }
 
 case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], params: Params) {
@@ -128,7 +131,7 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
              ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
   ): String = {
     def compose(acc: String, arg: Codec[Any], name: String, value: Any): String = {
-      val ampersand = if (acc.isEmpty) "" else s"$acc&"
+      val ampersand = if (acc.isEmpty) "?" else s"$acc&"
       val encoded   = arg.encode(value)
       ampersand + name + "=" + URI.encode(encoded)
     }
@@ -143,15 +146,13 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
         case ((ph: Param[_]) :: pt, vh :: vt) =>
           build(pt, vt)(compose(sb, ph.asInstanceOf[Param[Any]].codec,
             ph.name, vh))
+        case ((ph: Fragment[_]) :: pt, vh :: vt) =>
+          build(pt, vt)(
+            sb + "#" + ph.asInstanceOf[Fragment[Any]].codec.encode(vh))
         case _ => sb
       }
 
-    val base = route(args)
-
-    build[Params, ArgParams](params, argParams)("") match {
-      case "" => base
-      case a  => base + "?" + a
-    }
+    route(args) + build[Params, ArgParams](params, argParams)("")
   }
 
   def url[Args <: HList, ArgParams <: HList](
@@ -166,11 +167,10 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
              ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
     ): Option[(Args, ArgParams)] =
   {
-    val params = uri.split('?')
-
+    val p = PathParser.parse(uri)
     for {
-      parts <- route.parse(params.head)
-      args  <- parseQuery(params.tail.headOption.getOrElse(""))
+      parts <- route.parse(p.path)
+      args  <- parseQuery(p.args, p.fragment)
     } yield (parts, args)
   }
 
@@ -182,7 +182,12 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
     implicit prepend: Prepend[Params, ParamOpt[T] :: HNil]
   ) = copy(params = params :+ param)
 
-  private [trail] def parseQuery[Args <: HList](query: String)(
+  def &[T](param: Fragment[T])(
+    implicit prepend: Prepend[Params, Fragment[T] :: HNil]
+  ) = copy(params = params :+ param)
+
+  private[trail] def parseQuery[Args <: HList](args: List[(String, String)],
+                                               fragment: Option[String])(
     implicit ev: FlatMapper.Aux[Params.Convert.type, Params, Args]
   ): Option[Args] = {
     def m[R <: HList](r: R, s: List[(String, String)]): Option[HList] =
@@ -202,9 +207,13 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
               val value = ph.codec.decode(result._2)
               acc.map(value :: _)
           }
+        case (ph: Fragment[_]) :: pt =>
+          for {
+            f      <- fragment
+            decode <- ph.codec.decode(f)
+          } yield decode :: HNil
       }
 
-    val args = PathParser.parseArgs(query)
     m(params, args).map(_.asInstanceOf[Args])
   }
 }

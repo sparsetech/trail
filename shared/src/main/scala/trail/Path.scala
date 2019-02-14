@@ -1,7 +1,7 @@
 package trail
 
 case class Path(path: String,
-                args: Map[String, String] = Map(),
+                args: List[(String, String)] = List(),
                 fragment: Option[String] = None) {
   def url: String = (
     if (args.isEmpty) path
@@ -51,15 +51,15 @@ object PathParser {
   def parse(url: String): Path = {
     val pathRaw = dropSchemeAndAuthority(url)
 
-    val (path, args, fragment): (String, Map[String, String], Option[String]) =
+    val (path, args, fragment): (String, List[(String, String)], Option[String]) =
       pathRaw.indexOf('?') match {
         case -1 =>
           val (path, fragment) = parseFragment(pathRaw)
-          (path, Map(), fragment)
+          (path, List(), fragment)
         case n =>
           val (path, queryRaw) = pathRaw.splitAt(n)
           val (query, fragment) = parseFragment(queryRaw)
-          (path, parseArgs(query.tail).toMap, fragment)
+          (path, parseArgs(query.tail), fragment)
       }
 
     Path(path, args, fragment)
