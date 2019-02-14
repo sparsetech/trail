@@ -1,11 +1,14 @@
 package trail
 
-case class Path(path: String, args: Map[String, String] = Map.empty) {
-  def url: String =
+case class Path(path: String,
+                args: Map[String, String] = Map(),
+                fragment: Option[String] = None) {
+  def url: String = (
     if (args.isEmpty) path
     else path + "?" + args.map { case (k, v) =>
       k + "=" + URI.encode(v)
     }.mkString("&")
+  ) + fragment.fold("")("#" + _)
 }
 
 object PathParser {
@@ -22,8 +25,8 @@ object PathParser {
       else List((pair(0), URI.decode(pair(1))))
     }.toList
 
-  /** Return URL without scheme, authority and fragment */
-  def parsePathAndQuery(url: String): String = {
+  /** Return URL without scheme and authority */
+  private[trail] def dropSchemeAndAuthority(url: String): String = {
     val withoutScheme = url.indexOf("://") match {
       case -1 => url
       case i  => url.substring(i + 3)
@@ -34,14 +37,31 @@ object PathParser {
       case i  => withoutScheme.substring(i)
     }
 
-    withoutAuthority.takeWhile(_ != '#')
+    withoutAuthority
   }
 
-  def parse(url: String): Path = {
-    val parsed = parsePathAndQuery(url).split('?')
-    val (path, query) = (parsed.head, parsed.tail.headOption)
-    val args = query.toList.flatMap(parseArgs).toMap
+  private def parseFragment(input: String): (String, Option[String]) =
+    input.indexOf('#') match {
+      case -1 => (input, None)
+      case n =>
+        val (q, f) = input.splitAt(n)
+        (q, Some(f.tail))
+    }
 
-    Path(path, args)
+  def parse(url: String): Path = {
+    val pathRaw = dropSchemeAndAuthority(url)
+
+    val (path, args, fragment): (String, Map[String, String], Option[String]) =
+      pathRaw.indexOf('?') match {
+        case -1 =>
+          val (path, fragment) = parseFragment(pathRaw)
+          (path, Map(), fragment)
+        case n =>
+          val (path, queryRaw) = pathRaw.splitAt(n)
+          val (query, fragment) = parseFragment(queryRaw)
+          (path, parseArgs(query.tail).toMap, fragment)
+      }
+
+    Path(path, args, fragment)
   }
 }
