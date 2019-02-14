@@ -38,5 +38,10 @@
     "code" : "case class Foo(bar: String)\nimplicit object FooElement extends StaticElement[Foo](_.bar)\n\nprintln((Root / Foo(\"asdf\")).url())",
     "language" : "scala",
     "result" : "/asdf"
+  },
+  "query-fragment" : {
+    "code" : "val routeFragment = Root & Fragment[Int]\nprintln(routeFragment.parse(\"/#42\"))",
+    "language" : "scala",
+    "result" : "Some((HNil,42 :: HNil))"
   }
 }

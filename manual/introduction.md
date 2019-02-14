@@ -25,6 +25,9 @@ Define and parse a route with a query parameter:
 A query parameter may be optional:
 <listing id="query-params-opt">
 
+A fragment can be specified:
+<listing id="query-fragment">
+
 Create a routing table:
 <listing id="parse">
 
