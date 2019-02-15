@@ -30,6 +30,10 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
     implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]
   ): Option[Args] = parse(uri)
 
+  def unapply[Args <: HList](path: Path)(
+    implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]
+  ): Option[Args] = parse(path.path)
+
   def url()(
     implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, HNil]
   ): String = url(HNil: HNil)
@@ -75,6 +79,10 @@ case class Route[ROUTE <: HList](pathElements: ROUTE) {
     // type.
     m(pathElements, PathParser.parseParts(uri)).map(_.asInstanceOf[Args])
   }
+
+  def parse[Args <: HList](path: Path)(
+    implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args]
+  ): Option[Args] = parse(path.path)
 
   /**
     * Converts all the chunks of the path to `HR` using the passed `~>>` function.
@@ -124,7 +132,12 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
   def unapply[Args <: HList, ArgParams <: HList](uri: String)(
     implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
             ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
-  ): Option[(Args, ArgParams)] = parse(uri)
+  ): Option[(Args, ArgParams)] = parse(PathParser.parse(uri))
+
+  def unapply[Args <: HList, ArgParams <: HList](path: Path)(
+    implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
+            ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
+  ): Option[(Args, ArgParams)] = parse(path)
 
   def url[Args <: HList, ArgParams <: HList](args: Args, argParams: ArgParams)(
     implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
@@ -162,17 +175,22 @@ case class ParamRoute[ROUTE <: HList, Params <: HList](route: Route[ROUTE], para
   ): String = url(args: HNil, params)
 
   def parse[Args <: HList, ArgParams <: HList]
-    (uri: String)
+    (path: Path)
     (implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
              ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
     ): Option[(Args, ArgParams)] =
   {
-    val p = PathParser.parse(uri)
     for {
-      parts <- route.parse(p.path)
-      args  <- parseQuery(p.args, p.fragment)
+      parts <- route.parse(path.path)
+      args  <- parseQuery(path.args, path.fragment)
     } yield (parts, args)
   }
+
+  def parse[Args <: HList, ArgParams <: HList]
+    (uri: String)
+    (implicit ev: FlatMapper.Aux[Args.Convert.type, ROUTE, Args],
+      ev2: FlatMapper.Aux[Params.Convert.type, Params, ArgParams]
+    ): Option[(Args, ArgParams)] = parse(PathParser.parse(uri))
 
   def &[T](param: Param[T])(
     implicit prepend: Prepend[Params, Param[T] :: HNil]

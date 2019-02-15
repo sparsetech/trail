@@ -60,4 +60,20 @@ class RouteExampleTests extends FlatSpec with Matchers {
 
     assert(result == "hellofalse")
   }
+
+  "Expressing a routing table" should "be possible with pattern matching (2)" in {
+    import shapeless._
+
+    val details  = Root / "details" / Arg[Int]
+    val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
+
+    val result = PathParser.parse("/user/hello/false") match {
+      case details (a :: HNil)      => a.toString
+      case userInfo(u :: d :: HNil) =>
+        val user: String = u  // Verify that type inference works
+        u + d
+    }
+
+    assert(result == "hellofalse")
+  }
 }
