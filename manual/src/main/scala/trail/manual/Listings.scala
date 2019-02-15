@@ -26,6 +26,10 @@ object Listings extends App {
   val routeParamsOpt = Root / "details" & Param[Int]("id") & ParamOpt[Boolean]("show")
   println(routeParamsOpt.parse("/details?id=42"))
 
+  listing("query-fragment")
+  val routeFragment = Root & Fragment[Int]
+  println(routeFragment.parse("/#42"))
+
   listing("parse")
   val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
