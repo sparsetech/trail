@@ -31,6 +31,9 @@ A fragment can be specified:
 Create a routing table:
 <listing id="parse">
 
+Note that you can populate the `trail.Path()` data structure yourself and use it in place of its string counterpart. This is useful if you are using a third-party routing library which already provides you with a deconstructed URL:
+<listing id="parse-path">
+
 Define a custom argument type:
 <listing id="custom-arg">
 

@@ -39,6 +39,13 @@ object Listings extends App {
   }
   println(result)
 
+  listing("parse-path")
+  val result2 = trail.Path("/user/hello", List("show" -> "false")) match {
+    case details (a :: HNil)            => s"details: $a"
+    case userInfo(u :: HNil, s :: HNil) => s"user: $u, show: $s"
+  }
+  println(result2)
+
   listing("custom-arg")
   import scala.util.Try
   implicit case object IntSetArg extends Codec[Set[Int]] {
