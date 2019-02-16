@@ -9,6 +9,11 @@
     "language" : "scala",
     "result" : "/details/1"
   },
+  "parse-path" : {
+    "code" : "val result2 = trail.Path(\"/user/hello\", List(\"show\" -> \"false\")) match {\n  case details (a :: HNil)            => s\"details: $a\"\n  case userInfo(u :: HNil, s :: HNil) => s\"user: $u, show: $s\"\n}\nprintln(result2)",
+    "language" : "scala",
+    "result" : "user: hello, show: false"
+  },
   "custom-arg" : {
     "code" : "import scala.util.Try\nimplicit case object IntSetArg extends Codec[Set[Int]] {\n  override def encode(s: Set[Int]): String = s.mkString(\",\")\n  override def decode(s: String): Option[Set[Int]] =\n    Try(s.split(',').map(_.toInt).toSet).toOption\n}\n\nval export = Root / \"export\" / Arg[Set[Int]]\nprintln(export.url(Set(1, 2, 3) :: HNil))",
     "language" : "scala",
