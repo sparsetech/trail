@@ -8,14 +8,13 @@ Trail is a routing library for Scala and Scala.js.
 ## Example
 ```scala
 import trail._
-import shapeless._
 
 val details  = Root / "details" / Arg[Int]
 val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
 val result = "/user/hello?show=false" match {
-  case details (a :: HNil)            => s"details: $a"
-  case userInfo(u :: HNil, s :: HNil) => s"user: $u, show: $s"
+  case details (a)      => s"details: $a"
+  case userInfo((u, s)) => s"user: $u, show: $s"
 }
 ```
 
