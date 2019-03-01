@@ -5,6 +5,16 @@
 
 Trail is a routing library for Scala. It is available for the JVM, Scala.js and Scala Native.
 
+## Features
+* Define type-safe routes
+* Parse and generate URLs
+* DSL to extract path elements, arguments and fragments
+* Express routing tables via pattern matching
+* Define custom codecs
+* IDE support
+* Cross-platform support (JVM, Scala.js, Scala Native)
+* Zero dependencies
+
 ## Example
 ```scala
 import trail._

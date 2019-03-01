@@ -9,7 +9,7 @@ libraryDependencies += "tech.sparse" %%  "trail" % "%version%"  // Scala
 libraryDependencies += "tech.sparse" %%% "trail" % "%version%"  // Scala.js, Scala Native
 ```
 
-## Example
+## Usage
 Create a route:
 <listing id="route">
 
