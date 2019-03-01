@@ -1,17 +1,31 @@
 package trail
 
-import scala.annotation.implicitNotFound
+case class Arg[T]()(implicit val codec: Codec[T]) {
+  override def equals(o: Any): Boolean =
+    o match {
+      case a: Arg[T] => a.codec.equals(codec)
+      case _ => false
+    }
 
-@implicitNotFound("${T} cannot be used as a path element. Define an instance StaticElement[${T}].")
-class PathElement[T, U](val f: T => U)
+  override def hashCode(): Int = ("trail.Arg", codec).hashCode()
+}
 
-class StaticElement[T](f: T => String) extends PathElement[T, String](f)
+case class Param[T](name: String)(implicit val codec: Codec[T]) {
+  override def equals(o: Any): Boolean =
+    o match {
+      case p: Param[T] => p.name.equals(name) && p.codec.equals(codec)
+      case _ => false
+    }
 
-object PathElement {
-  implicit def argElement[T] = new PathElement[Arg[T], Arg[T]](identity)
+  override def hashCode(): Int = ("trail.Param", name, codec).hashCode()
+}
 
-  implicit object StringElement  extends StaticElement[String ](identity)
-  implicit object BooleanElement extends StaticElement[Boolean](_.toString)
-  implicit object IntElement     extends StaticElement[Int    ](_.toString)
-  implicit object LongElement    extends StaticElement[Long   ](_.toString)
+case class Fragment[T]()(implicit val codec: Codec[T]) {
+  override def equals(o: Any): Boolean =
+    o match {
+      case f: Fragment[T] => f.codec.equals(codec)
+      case _ => false
+    }
+
+  override def hashCode(): Int = ("trail.Fragment", codec).hashCode()
 }

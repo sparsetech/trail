@@ -1,18 +1,12 @@
 package trail
 
-import cats.kernel.Monoid
-import cats.{Id => _, _}
-
 import org.scalatest._
-import shapeless.test.illTyped
-import shapeless._
-import shapeless.poly._
 
-class RouteTests extends FreeSpec with Matchers {
+class RouteEqualityTests extends FreeSpec with Matchers {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"
-      val r2 = r1(HNil)
+      val r2 = r1(())
       assert(!r1.canEqual(r2), "r1 should not be comparable to r2")
     }
     "cannot equal a non-route" in {
@@ -20,20 +14,6 @@ class RouteTests extends FreeSpec with Matchers {
       assert(!r1.canEqual(2), "r1 should not be comparable to an integer")
       assert(!r1.canEqual("Asdf"), "r1 should not be comparable to a string")
       assert(r1 !== 2)
-    }
-
-    "fold()" - {
-      implicit val urlStringMonoid = new Monoid[String] {
-        override def empty: String = ""
-        override def combine(x: String, y: String): String = x + "/" + y
-      }
-
-      object chunkToStr extends ~>>[Id, String] {
-        override def apply[T](f: Id[T]): String = f.toString
-      }
-
-      val r = Root / "foo" / "bar"
-      r.fold(chunkToStr) shouldBe "/foo/bar"
     }
     "when empty" - {
       "should compile" in {
@@ -49,10 +29,12 @@ class RouteTests extends FreeSpec with Matchers {
       "should compile" in {
         val r = Root / "asdf"
       }
-      "apply() with arguments should not compile" in {
-        val r = Root / "asdf"
-        illTyped("r(1 :: HNil)")
-      }
+//      "apply() with arguments should not compile" in {
+//        """
+//          val r = Root / "asdf"
+//          r(1)
+//        """ shouldNot typeCheck
+//      }
       "can compute its hashcode consistently" in {
         val r1 = Root / "asdf"
         val r2 = Root / "asdf"
@@ -178,8 +160,8 @@ class RouteTests extends FreeSpec with Matchers {
     "when using a custom Arg element" - {
       case class Foo(bar: String)
       implicit object FooCodec extends Codec[Foo] {
-        override def encode(s: Foo): String = s.bar
-        override def decode(s: String): Option[Foo] = Option(s).map(Foo)
+        override def encode(s: Foo): Option[String] = Some(s.bar)
+        override def decode(s: Option[String]): Option[Foo] = s.map(Foo)
       }
       "should compile" in {
         val r = Root / Arg[Foo]
