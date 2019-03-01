@@ -5,17 +5,20 @@ val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
 val Scala2_12  = "2.12.8"
 val ScalaTest  = "3.0.5"
+val ScalaTestNative = "3.2.0-SNAP10"
 
 val SharedSettings = Seq(
-  name := "trail",
+  name         := "trail",
   organization := "tech.sparse",
-  scalaVersion := Scala2_12,
+
+  scalaVersion       := Scala2_12,
   crossScalaVersions := Seq(Scala2_12, Scala2_11),
-  scalacOptions := Seq(
+  scalacOptions      := Seq(
     "-unchecked",
     "-deprecation",
     "-encoding", "utf8"
   ),
+
   pomExtra :=
     <url>https://github.com/sparsetech/trail</url>
     <licenses>
@@ -36,20 +39,30 @@ val SharedSettings = Seq(
     </developers>
 )
 
-lazy val trail = crossProject(JSPlatform, JVMPlatform)
-  .crossType(CrossType.Full)
+lazy val root = project.in(file("."))
+  .aggregate(trail.js, trail.jvm, trail.native)
+  .settings(SharedSettings: _*)
+  .settings(skip in publish := true)
+
+lazy val trail = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("."))
   .settings(SharedSettings: _*)
   .settings(
     autoAPIMappings := true,
     apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
-    libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % ScalaTest % "test"
-    )
   )
   .jsSettings(
-    /* Use io.js for faster compilation of test cases */
-    scalaJSStage in Global := FastOptStage
+    libraryDependencies += "org.scalatest" %%% "scalatest" % ScalaTest % "test"
+  )
+  .jvmSettings(
+    libraryDependencies += "org.scalatest" %%% "scalatest" % ScalaTest % "test"
+  ).nativeSettings(
+    scalaVersion       := Scala2_11,
+    crossScalaVersions := Seq(Scala2_11),
+    // See https://github.com/scalalandio/chimney/issues/78#issuecomment-419705142
+    nativeLinkStubs    := true,
+    libraryDependencies +=
+      "org.scalatest" %%% "scalatest" % ScalaTestNative % "test"
   )
 
 lazy val manual = project.in(file("manual"))

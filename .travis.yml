@@ -1,8 +1,29 @@
-language: scala
-scala:
-  - 2.11.12
-  - 2.12.8
+language: java
+env:
+  - TRAVIS_SCALA_VERSION=2.11.11
+  - TRAVIS_SCALA_VERSION=2.12.8
 jdk:
   - oraclejdk8
+
+dist: trusty
+sudo: required
+
+addons:
+  apt:
+    update: true
+
+# Cache directory to S3 at the end of the build
+cache:
+  directories:
+    - $HOME/.cache/coursier
+
+# From https://raw.githubusercontent.com/scalalandio/chimney/master/.travis.yml
+before_script:
+  - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x; fi
+
 script:
-  sbt ++$TRAVIS_SCALA_VERSION trailJS/test trailJVM/test
+  - set -x &&
+    if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=trailNative/test; else testNative=""; fi &&
+    curl -o csbt https://raw.githubusercontent.com/coursier/sbt-launcher/master/csbt &&
+    chmod +x csbt &&
+    ./csbt --add-coursier=true ++$TRAVIS_SCALA_VERSION trailJVM/test trailJS/test $testNative

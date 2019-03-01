@@ -1,12 +1,12 @@
 # Introduction
-Trail is a routing library for Scala and Scala.js. It allows to define type-safe routes, generate URLs and perform pattern matching.
+Trail is a routing library for Scala. It allows to define type-safe routes, generate URLs and perform pattern matching.
 
 ## Installation
 Add the following dependencies to your build configuration:
 
 ```scala
 libraryDependencies += "tech.sparse" %%  "trail" % "%version%"  // Scala
-libraryDependencies += "tech.sparse" %%% "trail" % "%version%"  // Scala.js
+libraryDependencies += "tech.sparse" %%% "trail" % "%version%"  // Scala.js, Scala Native
 ```
 
 ## Example
