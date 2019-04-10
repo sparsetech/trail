@@ -148,4 +148,12 @@ class RouteParamTests extends FunSpec with Matchers {
     assert(route.parse("/?test=42&test=value")
       .contains((42, "value")))
   }
+
+  it("Only match parameter routes with same path") {
+    val route = Root / "api" / "catalogue" / "content" & Param[String]("category")
+
+    assert(route.parse("/catalogue/content?category=Audio").isEmpty)
+    assert(route.parse("/api/catalogue/content?category=Audio")
+      .contains("Audio"))
+  }
 }

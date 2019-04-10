@@ -100,8 +100,9 @@ object Route {
     override def parseInternal(path: Path): Option[(P, Path)] =
       for {
         (_, lp) <- route.parseInternal(path)
-        rv <- fragment.codec.decode(path.fragment)
-      } yield (rv, lp.copy(fragment = None))
+        v <- fragment.codec.decode(lp.fragment)
+        p = lp.copy(fragment = None)
+      } yield (v, p)
   }
 
   case class FragmentRoute[A, P](route: Route[A], fragment: Fragment[P]) extends Route[(A, P)] {
@@ -113,8 +114,9 @@ object Route {
     override def parseInternal(path: Path): Option[((A, P), Path)] =
       for {
         (lv, lp) <- route.parseInternal(path)
-        rv <- fragment.codec.decode(path.fragment)
-      } yield ((lv, rv), lp.copy(fragment = None))
+        rv <- fragment.codec.decode(lp.fragment)
+        p = lp.copy(fragment = None)
+      } yield ((lv, rv), p)
   }
 
   case class ParamRoute0[P](route: Route[Unit], param: Param[P]) extends Route[P] {
@@ -123,11 +125,13 @@ object Route {
         .fold("")(v => param.name + "=" + URI.encode(v))
       route.url(()) + (if (arg.isEmpty) "" else "?" + arg)
     }
-    override def parseInternal(path: Path): Option[(P, Path)] = {
-      val arg = path.args.find(_._1 == param.name)
-      param.codec.decode(arg.map(_._2)).map(decode =>
-        (decode, path.copy(args = path.args.diff(arg.toList))))
-    }
+    override def parseInternal(path: Path): Option[(P, Path)] =
+      for {
+        (_, lp) <- route.parseInternal(path)
+        arg = lp.args.find(_._1 == param.name)
+        v <- param.codec.decode(arg.map(_._2))
+        p = lp.copy(args = lp.args.diff(arg.toList))
+      } yield (v, p)
     def &[T](param: Param[T]): ParamRoute[P, T] = ParamRoute(this, param)
   }
 
@@ -143,11 +147,9 @@ object Route {
     override def parseInternal(path: Path): Option[((A, P), Path)] =
       for {
         (lv, lp) <- route.parseInternal(path)
-        (rv, rp) <- {
-          val arg = lp.args.find(_._1 == param.name)
-          param.codec.decode(arg.map(_._2)).map(decode =>
-            (decode, lp.copy(args = lp.args.diff(arg.toList))))
-        }
-      } yield ((lv, rv), rp)
+        arg = lp.args.find(_._1 == param.name)
+        rv <- param.codec.decode(arg.map(_._2))
+        p = lp.copy(args = lp.args.diff(arg.toList))
+      } yield ((lv, rv), p)
   }
 }
