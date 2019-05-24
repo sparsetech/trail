@@ -60,4 +60,10 @@ class PathTests extends FunSuite {
       assert(parsed.url == url)
     }
   }
+
+  test("Parse argument with empty value") {
+    val url = "/test?a="
+    assert(PathParser.parse(url).path == "/test")
+    assert(PathParser.parse(url).args == List("a" -> ""))
+  }
 }

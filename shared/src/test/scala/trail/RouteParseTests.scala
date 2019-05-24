@@ -2,6 +2,8 @@ package trail
 
 import org.scalatest._
 
+import scala.util.Try
+
 class RouteParseTests extends FunSpec with Matchers {
   it("Parse root") {
     val root = Root
@@ -57,5 +59,20 @@ class RouteParseTests extends FunSpec with Matchers {
 
     assert(userInfo.parse("/user/hello/false")
       .contains(("hello", false)))
+  }
+
+  it("Set codec") {
+    implicit case object LongSetCodec extends Codec[Set[Long]] {
+      override def encode(s: Set[Long]): Option[String] = Some(s.mkString(","))
+      override def decode(s: Option[String]): Option[Set[Long]] =
+        s.flatMap(value =>
+          if (value.isEmpty) Some(Set())
+          else Try(value.split(',').map(_.toLong).toSet).toOption)
+    }
+
+    val route = Root / "size" & Param[Set[Long]]("folders")
+    assert(route.parse(route(Set[Long]())).contains(Set[Long]()))
+    assert(route.parse(route(Set[Long](1))).contains(Set[Long](1)))
+    assert(route.parse(route(Set[Long](1, 2, 3))).contains(Set[Long](1, 2, 3)))
   }
 }

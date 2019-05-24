@@ -20,9 +20,9 @@ object PathParser {
 
   def parseArgs(query: String): List[(String, String)] =
     query.split('&').flatMap { x =>
-      val pair = x.split('=')
-      if (pair.length != 2) List.empty
-      else List((pair(0), URI.decode(pair(1))))
+      val equalSign = x.indexOf('=')
+      if (equalSign == -1) List()
+      else List((x.take(equalSign), URI.decode(x.drop(equalSign + 1))))
     }.toList
 
   /** Return URL without scheme and authority */

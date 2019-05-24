@@ -14,11 +14,6 @@
     "language" : "scala",
     "result" : "user: hello, show: false"
   },
-  "custom-arg" : {
-    "code" : "import scala.util.Try\nimplicit case object IntSetArg extends Codec[Set[Int]] {\n  override def encode(s: Set[Int]): Option[String] = Some(s.mkString(\",\"))\n  override def decode(s: Option[String]): Option[Set[Int]] =\n    s.flatMap(value => Try(value.split(',').map(_.toInt).toSet).toOption)\n}\n\nval export = Root / \"export\" / Arg[Set[Int]]\nprintln(export.url(Set(1, 2, 3)))",
-    "language" : "scala",
-    "result" : "/export/1,2,3"
-  },
   "query-params-opt" : {
     "code" : "val routeParamsOpt = Root / \"details\" & Param[Int](\"id\") & Param[Option[Boolean]](\"show\")\nprintln(routeParamsOpt.parse(\"/details?id=42\"))",
     "language" : "scala",
@@ -43,6 +38,11 @@
     "code" : "case class Foo(bar: String)\nimplicit object FooElement extends StaticElement[Foo](_.bar)\n\nprintln((Root / Foo(\"asdf\")).url(()))",
     "language" : "scala",
     "result" : "/asdf"
+  },
+  "custom-codec" : {
+    "code" : "import scala.util.Try\nimplicit case object IntSetCodec extends Codec[Set[Int]] {\n  override def encode(s: Set[Int]): Option[String] = Some(s.mkString(\",\"))\n  override def decode(s: Option[String]): Option[Set[Int]] =\n    s.flatMap(value =>\n      if (value.isEmpty) Some(Set())\n      else Try(value.split(',').map(_.toInt).toSet).toOption)\n}\n\nval export = Root / \"export\" / Arg[Set[Int]]\nprintln(export.url(Set(1, 2, 3)))",
+    "language" : "scala",
+    "result" : "/export/1,2,3"
   },
   "query-fragment" : {
     "code" : "val routeFragment = Root $ Fragment[Int]\nprintln(routeFragment.parse(\"/#42\"))",
