@@ -46,12 +46,14 @@ object Listings extends App {
   }
   println(result2)
 
-  listing("custom-arg")
+  listing("custom-codec")
   import scala.util.Try
-  implicit case object IntSetArg extends Codec[Set[Int]] {
+  implicit case object IntSetCodec extends Codec[Set[Int]] {
     override def encode(s: Set[Int]): Option[String] = Some(s.mkString(","))
     override def decode(s: Option[String]): Option[Set[Int]] =
-      s.flatMap(value => Try(value.split(',').map(_.toInt).toSet).toOption)
+      s.flatMap(value =>
+        if (value.isEmpty) Some(Set())
+        else Try(value.split(',').map(_.toInt).toSet).toOption)
   }
 
   val export = Root / "export" / Arg[Set[Int]]
