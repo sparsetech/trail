@@ -2,7 +2,7 @@
 title         = "Trail User Manual"
 author        = "Tim Nieradzik"
 affiliation   = "sparse.tech"
-abstract      = "Routing library for Scala and Scala.js"
+abstract      = "Routing library for the Scala platform"
 language      = "en-GB"
 editSourceUrl = "https://github.com/sparsetech/trail/edit/master/"
 
