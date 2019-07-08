@@ -57,7 +57,7 @@ object Route {
     override def url(value: T): String = arg.codec.encode(value).getOrElse("")
     override def parseInternal(path: Path): Option[(T, Path)] = {
       val untilSlash = path.path.takeWhile(_ != '/')
-      arg.codec.decode(Some(untilSlash))
+      arg.codec.decode(if (untilSlash.isEmpty) None else Some(untilSlash))
         .map(value => (value, path.copy(path =
           path.path.drop(untilSlash.length + 1))))
     }
