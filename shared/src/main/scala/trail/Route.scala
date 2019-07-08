@@ -138,11 +138,12 @@ object Route {
   case class ParamRoute[A, P](route: Route[A], param: Param[P]) extends Route[(A, P)] {
     override def url(value: (A, P)): String = {
       val base = route.url(value._1)
-      val encodedParam =
-        param.codec.encode(value._2).map(v => param.name + "=" + URI.encode(v))
-          .getOrElse("")
-      val delimiter = if (base.contains("?")) "&" else "?"
-      base + delimiter + encodedParam
+      param.codec.encode(value._2)
+        .map(v => param.name + "=" + URI.encode(v))
+        .fold(base) { encodedParam =>
+          val delimiter = if (base.contains("?")) "&" else "?"
+          base + delimiter + encodedParam
+        }
     }
     override def parseInternal(path: Path): Option[((A, P), Path)] =
       for {

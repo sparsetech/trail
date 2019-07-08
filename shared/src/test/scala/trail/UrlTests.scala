@@ -132,4 +132,11 @@ class UrlTests2 extends FunSpec with Matchers {
 
     assert(url == "/list?upload=true")
   }
+
+  it("url() should work with optional parameter set to None") {
+    val route = Root / "disk" / "view" & Param[Long]("disk") & Param[Option[Long]]("folder")
+    val url   = route((48L, None))
+
+    assert(url == "/disk/view?disk=48")
+  }
 }
