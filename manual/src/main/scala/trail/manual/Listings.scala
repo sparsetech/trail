@@ -65,6 +65,11 @@ object Listings extends App {
 
   println((Root / Foo("asdf")).url(()))
 
+  listing("uri-values")
+  val encoded = URI.encode("äöü")
+  println(encoded)
+  println(URI.decode(encoded))
+
   end()
   write("manual/listings.json")
 }
