@@ -38,6 +38,19 @@ class RouteParseTests extends FunSpec with Matchers {
     assert(parsed === Some((("bob", true), 42)))
   }
 
+  it("Route with optional path element can be parsed") {
+    val disk = Root / Arg[Option[Long]]
+    assert(disk.parse("/").contains(None))
+    assert(disk.parse("/42").contains(Some(42L)))
+  }
+
+  it("Route with optional path element can be parsed (2)") {
+    val disk = Root / "disk" / Arg[Option[Long]]
+    assert(disk.parse("/disk").contains(None))
+    assert(disk.parse("/disk/").contains(None))
+    assert(disk.parse("/disk/42").contains(Some(42L)))
+  }
+
   it("Route can be parsed from string") {
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]
 
