@@ -39,3 +39,6 @@ Define a custom codec that can be used in arguments, parameters and fragments:
 
 Define a custom path element type:
 <listing id="custom-path-elem">
+
+Encode and decode [URI values](https://en.wikipedia.org/wiki/Percent-encoding):
+<listing id="uri-values">

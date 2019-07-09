@@ -1,4 +1,9 @@
 {
+  "uri-values" : {
+    "code" : "val encoded = URI.encode(\"äöü\")\nprintln(encoded)\nprintln(URI.decode(encoded))",
+    "language" : "scala",
+    "result" : "%C3%A4%C3%B6%C3%BC\näöü"
+  },
   "map" : {
     "code" : "println(details.parse(\"/details/42\"))",
     "language" : "scala",
