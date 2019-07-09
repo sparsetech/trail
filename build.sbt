@@ -4,15 +4,16 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
 val Scala2_12  = "2.12.8"
-val ScalaTest  = "3.0.5"
+val Scala2_13  = "2.13.0"
+val ScalaTest  = "3.0.8"
 val ScalaTestNative = "3.2.0-SNAP10"
 
 val SharedSettings = Seq(
   name         := "trail",
   organization := "tech.sparse",
 
-  scalaVersion       := Scala2_12,
-  crossScalaVersions := Seq(Scala2_12, Scala2_11),
+  scalaVersion       := Scala2_13,
+  crossScalaVersions := Seq(Scala2_13, Scala2_12, Scala2_11),
   scalacOptions      := Seq(
     "-unchecked",
     "-deprecation",

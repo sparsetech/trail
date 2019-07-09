@@ -2,6 +2,7 @@ language: java
 env:
   - TRAVIS_SCALA_VERSION=2.11.11
   - TRAVIS_SCALA_VERSION=2.12.8
+  - TRAVIS_SCALA_VERSION=2.13.0
 jdk:
   - oraclejdk8
 
@@ -24,6 +25,6 @@ before_script:
 script:
   - set -x &&
     if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=trailNative/test; else testNative=""; fi &&
-    curl -L -o csbt https://github.com/coursier/sbt-launcher/releases/download/v1.2.2/csbt &&
+    curl -L -o csbt https://github.com/coursier/sbt-launcher/releases/download/v1.2.14/csbt &&
     chmod +x csbt &&
-    ./csbt --add-coursier=true ++$TRAVIS_SCALA_VERSION trailJVM/test trailJS/test $testNative
+    COURSIER_SBT_LAUNCHER_ADD_PLUGIN=true ./csbt ++$TRAVIS_SCALA_VERSION trailJVM/test trailJS/test $testNative
