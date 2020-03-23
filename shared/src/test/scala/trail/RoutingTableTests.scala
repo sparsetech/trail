@@ -40,8 +40,8 @@ class RoutingTableTests extends FunSpec with Matchers {
     val devRoutes  = new Routes(isProduction = false)
     val prodRoutes = new Routes(isProduction = true)
 
-    assert(devRoutes.users.parse("/users/test").contains("test"))
-    assert(prodRoutes.users.parse("/api/v2.0/users/test").contains("test"))
+    assert(devRoutes.users.parseArgs("/users/test").contains("test"))
+    assert(prodRoutes.users.parseArgs("/api/v2.0/users/test").contains("test"))
   }
 
   it("Parsing multiple route with pattern matching") {

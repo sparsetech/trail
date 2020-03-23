@@ -24,8 +24,8 @@ class RouteFragmentTests extends FunSpec with Matchers {
 
   it("Parse route with empty fragment") {
     val route = Root $ Fragment[String]
-    assert(route.parse("/").isEmpty)
-    assert(route.parse("/#").contains(""))
+    assert(route.parseArgs("/").isEmpty)
+    assert(route.parseArgs("/#").contains(""))
   }
 
   it("Generate URL for route with empty fragment") {
@@ -36,8 +36,8 @@ class RouteFragmentTests extends FunSpec with Matchers {
 
   it("Parse route with optional fragment") {
     val route = Root $ Fragment[Option[String]]
-    assert(route.parse("/").contains(None))
-    assert(route.parse("/#").contains(Some("")))
+    assert(route.parseArgs("/").contains(None))
+    assert(route.parseArgs("/#").contains(Some("")))
   }
 
   it("Generate URL for route with optional fragment") {
@@ -60,12 +60,17 @@ class RouteFragmentTests extends FunSpec with Matchers {
 
   it("Parse route with fragment") {
     val route = Root $ Fragment[String]
-    assert(route.parse("/").isEmpty)
-    assert(route.parse("/#value").contains("value"))
+    assert(route.parseArgs("/").isEmpty)
+    assert(route.parseArgs("/#value").contains("value"))
   }
 
   it("Parse route with parameter and fragment") {
     val route = Root & Param[String]("test") $ Fragment[Int]
-    assert(route.parse("/?test=value#42").contains(("value", 42)))
+    assert(route.parseArgs("/?test=value#42").contains(("value", 42)))
+  }
+
+  it("Parse route with additional parameter and fragment") {
+    val route = Root & Params $ Fragment[Int]
+    assert(route.parseArgs("/?test=value#42").contains(() -> List("test" -> "value") -> 42))
   }
 }

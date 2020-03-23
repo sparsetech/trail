@@ -139,4 +139,15 @@ class UrlTests2 extends FunSpec with Matchers {
 
     assert(url == "/disk/view?disk=48")
   }
+
+  it("url() should work with additional parameters") {
+    val route = Root & Params
+    assert(route.url(() -> List("test" -> "value")) == "/?test=value")
+
+    val route2 = Root & Param[String]("test") & Params
+    assert(route2.url("value" -> List("test2" -> "value2")) == "/?test=value&test2=value2")
+
+    val route3 = Root & Params $ Fragment[Int]
+    assert(route3.url(() -> List("test" -> "value") -> 42) == "/?test=value#42")
+  }
 }

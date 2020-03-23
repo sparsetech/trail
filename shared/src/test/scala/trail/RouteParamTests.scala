@@ -87,73 +87,91 @@ class RouteParamTests extends FunSpec with Matchers {
 
   it("Parsing route with one parameter") {
     val route = Root & Param[String]("test")
-    assert(route.parse("/?test=value")
+    assert(route.parseArgs("/?test=value")
       .contains("value"))
-    assert(route.parse("/?test=äöü").contains("äöü"))
-    assert(route.parse("/?test=%C3%A4%C3%B6%C3%BC")
+    assert(route.parseArgs("/?test=äöü").contains("äöü"))
+    assert(route.parseArgs("/?test=%C3%A4%C3%B6%C3%BC")
       .contains("äöü"))
   }
 
   it("Parsing route with unspecified parameter") {
     val route = Root & Param[String]("test")
-    assert(route.parse("/").isEmpty)
-    assert(route.parse("/?test2=value").isEmpty)
+    assert(route.parseArgs("/").isEmpty)
+    assert(route.parseArgs("/?test2=value").isEmpty)
   }
 
   it("Parsing route with two parameters") {
     val route = Root & Param[String]("test") & Param[Int]("test2")
-    val parsed = route.parse("/?test=value&test2=42")
+    val parsed = route.parseArgs("/?test=value&test2=42")
     assert(parsed.contains(("value", 42)))
   }
 
   it("Parsing route with additional parameters") {
-    // Ignore parameters that are not specified in the route
+    // By default, allow parameters that are not specified in the route
     val route = Root & Param[String]("test")
-    val parsed = route.parse("/?test=value&test2=value2")
+    val parsed = route.parseArgs("/?test=value&test2=value2")
     assert(parsed.contains("value"))
+
+    val route2 = Root & Params
+    assert(route2.parseArgs("/?test=value").contains(() -> List("test" -> "value")))
+
+    val route3 = Root & Param[String]("test") & Params
+    assert(route3.parseArgs("/?test=value&test2=value2").contains("value" -> List("test2" -> "value2")))
   }
 
   it("Parsing non-root route with two optional parameters") {
     val route = Root / "register" & Param[Option[String]]("plan") & Param[Option[String]]("redirect")
-    assert(route.parse("/register?plan=test")
+    assert(route.parseArgs("/register?plan=test")
       .contains((Option("test"), Option.empty[String])))
-    assert(route.parse("/register?plan=test&redirect=test2")
+    assert(route.parseArgs("/register?plan=test&redirect=test2")
       .contains((Option("test"), Option("test2"))))
-    assert(route.parse("/register?redirect=test2")
+    assert(route.parseArgs("/register?redirect=test2")
       .contains((Option.empty[String], Option("test2"))))
   }
 
   it("Parsing route with optional parameter") {
     val route = Root & Param[Option[String]]("test")
-    assert(route.parse("/")
-      .contains(Option.empty[String]))
-    assert(route.parse("/?test2=value")
-      .contains(Option.empty[String]))
-    assert(route.parse("/?test=value")
-      .contains(Option("value")))
-    assert(route.parse("/?test=value&test2=value")
-      .contains(Option("value")))
+
+    assert(route.parseArgs("/").contains(Option.empty[String]))
+    assert(route.parseArgs("/?test=value").contains(Option("value")))
+
+    assert(route.parseArgs("/?test2=value").contains(None))
+    assert(route.parseArgs("/?test=value&test2=value").contains(Some("value")))
   }
 
   it("Parsing route with duplicated name") {
     val route = Root & Param[String]("test") & Param[String]("test")
-    assert(route.parse("/?test=v1&test=v2")
+    assert(route.parseArgs("/?test=v1&test=v2")
       .contains(("v1", "v2")))
   }
 
   it("Parsing route with duplicated name and different types") {
     val route = Root & Param[Int]("test") & Param[String]("test")
     // When the two parameters have different types, the order matters
-    assert(route.parse("/?test=value&test=42").isEmpty)
-    assert(route.parse("/?test=42&test=value")
+    assert(route.parseArgs("/?test=value&test=42").isEmpty)
+    assert(route.parseArgs("/?test=42&test=value")
       .contains((42, "value")))
   }
 
   it("Only match parameter routes with same path") {
     val route = Root / "api" / "catalogue" / "content" & Param[String]("category")
 
-    assert(route.parse("/catalogue/content?category=Audio").isEmpty)
-    assert(route.parse("/api/catalogue/content?category=Audio")
+    assert(route.parseArgs("/catalogue/content?category=Audio").isEmpty)
+    assert(route.parseArgs("/api/catalogue/content?category=Audio")
       .contains("Audio"))
+  }
+
+  it("Parsing routes with additional parameters in strict mode") {
+    // In strict mode, forbid parameters that are not specified in the route
+    val route = Root & Param[String]("test")
+    val parsed = route.parseArgsStrict("/?test=value&test2=value2")
+    assert(parsed.isEmpty)
+
+    val route2 = Root & Param[Option[String]]("test")
+    assert(route2.parseArgsStrict("/").contains(Option.empty[String]))
+    assert(route2.parseArgsStrict("/?test=value").contains(Option("value")))
+
+    assert(route2.parseArgsStrict("/?test2=value").isEmpty)
+    assert(route2.parseArgsStrict("/?test=value&test2=value").isEmpty)
   }
 }
