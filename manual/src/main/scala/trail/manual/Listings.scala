@@ -7,30 +7,47 @@ object Listings extends App {
 
   listing("route")
   import trail._
-  import shapeless._
-
   val details = Root / "details" / Arg[Int]
-  println(details)
 
   listing("url")
-  println(details.url(1))  // Shorter: details(1)
+  println(details.url(1))
+  println(details(1))
 
-  listing("map")
+  listing("parse")
   println(details.parse("/details/42"))
+  println(details.parse("/details/42/sub-page?name=value"))
+  println(details.parse("/details/42/sub-page?name=value#frag"))
 
   listing("query-params")
   val route = Root / "details" & Param[Boolean]("show")
-  println(route.parse("/details?show=false"))
+  println(route.parseArgs("/details/sub-page"))
+  println(route.parseArgs("/details?show=false"))
+  println(route.parseArgs("/details?show=false&a=b"))
+  println(route.parseArgs("/details#frag"))
+
+  listing("query-params-strict")
+  println(route.parseArgsStrict("/details/sub-page"))
+  println(route.parseArgsStrict("/details?show=false"))
+  println(route.parseArgsStrict("/details?show=false&a=b"))
+  println(route.parseArgsStrict("/details#frag"))
 
   listing("query-params-opt")
   val routeParamsOpt = Root / "details" & Param[Int]("id") & Param[Option[Boolean]]("show")
-  println(routeParamsOpt.parse("/details?id=42"))
+  println(routeParamsOpt.parseArgs("/details?id=42"))
 
   listing("query-fragment")
   val routeFragment = Root $ Fragment[Int]
-  println(routeFragment.parse("/#42"))
+  println(routeFragment.parseArgs("/#42"))
 
-  listing("parse")
+  listing("additional-elems")
+  val routeAdditionalElems = Root / "a" / Elems
+  println(routeAdditionalElems.parseArgs("/a/b/c"))
+
+  listing("additional-params")
+  val routeAdditionalParams = Root / Arg[String] & Params
+  println(routeAdditionalParams.parseArgs("/a?param1=value1&param2=value2"))
+
+  listing("routing-table")
   val userInfo = Root / "user" / Arg[String] & Param[Boolean]("show")
 
   val result = "/user/hello?show=false" match {
@@ -40,7 +57,8 @@ object Listings extends App {
   println(result)
 
   listing("parse-path")
-  val result2 = trail.Path("/user/hello", List("show" -> "false")) match {
+  val (requestPath, requestParams) = ("/user/hello", List("show" -> "false"))
+  val result2 = trail.Path(requestPath, requestParams) match {
     case details (a)      => s"details: $a"
     case userInfo((u, s)) => s"user: $u, show: $s"
   }

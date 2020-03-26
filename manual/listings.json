@@ -4,40 +4,55 @@
     "language" : "scala",
     "result" : "%C3%A4%C3%B6%C3%BC\näöü"
   },
-  "map" : {
-    "code" : "println(details.parse(\"/details/42\"))",
-    "language" : "scala",
-    "result" : "Some(42)"
-  },
   "url" : {
-    "code" : "println(details.url(1))  // Shorter: details(1)",
+    "code" : "println(details.url(1))\nprintln(details(1))",
     "language" : "scala",
-    "result" : "/details/1"
+    "result" : "/details/1\n/details/1"
+  },
+  "query-params-strict" : {
+    "code" : "println(route.parseArgsStrict(\"/details/sub-page\"))\nprintln(route.parseArgsStrict(\"/details?show=false\"))\nprintln(route.parseArgsStrict(\"/details?show=false&a=b\"))\nprintln(route.parseArgsStrict(\"/details#frag\"))",
+    "language" : "scala",
+    "result" : "None\nSome(false)\nNone\nNone"
   },
   "parse-path" : {
-    "code" : "val result2 = trail.Path(\"/user/hello\", List(\"show\" -> \"false\")) match {\n  case details (a)      => s\"details: $a\"\n  case userInfo((u, s)) => s\"user: $u, show: $s\"\n}\nprintln(result2)",
+    "code" : "val (requestPath, requestParams) = (\"/user/hello\", List(\"show\" -> \"false\"))\nval result2 = trail.Path(requestPath, requestParams) match {\n  case details (a)      => s\"details: $a\"\n  case userInfo((u, s)) => s\"user: $u, show: $s\"\n}\nprintln(result2)",
     "language" : "scala",
     "result" : "user: hello, show: false"
   },
+  "additional-elems" : {
+    "code" : "val routeAdditionalElems = Root / \"a\" / Elems\nprintln(routeAdditionalElems.parseArgs(\"/a/b/c\"))",
+    "language" : "scala",
+    "result" : "Some(List(b, c))"
+  },
   "query-params-opt" : {
-    "code" : "val routeParamsOpt = Root / \"details\" & Param[Int](\"id\") & Param[Option[Boolean]](\"show\")\nprintln(routeParamsOpt.parse(\"/details?id=42\"))",
+    "code" : "val routeParamsOpt = Root / \"details\" & Param[Int](\"id\") & Param[Option[Boolean]](\"show\")\nprintln(routeParamsOpt.parseArgs(\"/details?id=42\"))",
     "language" : "scala",
     "result" : "Some((42,None))"
   },
   "parse" : {
+    "code" : "println(details.parse(\"/details/42\"))\nprintln(details.parse(\"/details/42/sub-page?name=value\"))\nprintln(details.parse(\"/details/42/sub-page?name=value#frag\"))",
+    "language" : "scala",
+    "result" : "Some((42,Path(,List(),None)))\nSome((42,Path(sub-page,List((name,value)),None)))\nSome((42,Path(sub-page,List((name,value)),Some(frag))))"
+  },
+  "query-params" : {
+    "code" : "val route = Root / \"details\" & Param[Boolean](\"show\")\nprintln(route.parseArgs(\"/details/sub-page\"))\nprintln(route.parseArgs(\"/details?show=false\"))\nprintln(route.parseArgs(\"/details?show=false&a=b\"))\nprintln(route.parseArgs(\"/details#frag\"))",
+    "language" : "scala",
+    "result" : "None\nSome(false)\nSome(false)\nNone"
+  },
+  "routing-table" : {
     "code" : "val userInfo = Root / \"user\" / Arg[String] & Param[Boolean](\"show\")\n\nval result = \"/user/hello?show=false\" match {\n  case details (a)      => s\"details: $a\"\n  case userInfo((u, s)) => s\"user: $u, show: $s\"\n}\nprintln(result)",
     "language" : "scala",
     "result" : "user: hello, show: false"
   },
-  "query-params" : {
-    "code" : "val route = Root / \"details\" & Param[Boolean](\"show\")\nprintln(route.parse(\"/details?show=false\"))",
+  "additional-params" : {
+    "code" : "val routeAdditionalParams = Root / Arg[String] & Params\nprintln(routeAdditionalParams.parseArgs(\"/a?param1=value1&param2=value2\"))",
     "language" : "scala",
-    "result" : "Some(false)"
+    "result" : "Some((a,List((param1,value1), (param2,value2))))"
   },
   "route" : {
-    "code" : "import trail._\nimport shapeless._\n\nval details = Root / \"details\" / Arg[Int]\nprintln(details)",
+    "code" : "import trail._\nval details = Root / \"details\" / Arg[Int]",
     "language" : "scala",
-    "result" : "ConcatRight(ConcatRight(Root,Static(details)),Dynamic(Arg()))"
+    "result" : null
   },
   "custom-path-elem" : {
     "code" : "case class Foo(bar: String)\nimplicit object FooElement extends StaticElement[Foo](_.bar)\n\nprintln((Root / Foo(\"asdf\")).url(()))",
@@ -50,7 +65,7 @@
     "result" : "/export/1,2,3"
   },
   "query-fragment" : {
-    "code" : "val routeFragment = Root $ Fragment[Int]\nprintln(routeFragment.parse(\"/#42\"))",
+    "code" : "val routeFragment = Root $ Fragment[Int]\nprintln(routeFragment.parseArgs(\"/#42\"))",
     "language" : "scala",
     "result" : "Some(42)"
   }
