@@ -3,9 +3,9 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.8"
-val Scala2_13  = "2.13.0"
-val ScalaTest  = "3.0.8"
+val Scala2_12  = "2.12.11"
+val Scala2_13  = "2.13.1"
+val ScalaTest  = "3.1.1"
 val ScalaTestNative = "3.2.0-SNAP10"
 
 val SharedSettings = Seq(
