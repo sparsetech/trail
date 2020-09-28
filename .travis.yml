@@ -1,30 +1,11 @@
-language: java
-env:
-  - TRAVIS_SCALA_VERSION=2.11.11
-  - TRAVIS_SCALA_VERSION=2.12.8
-  - TRAVIS_SCALA_VERSION=2.13.0
+os: linux
+dist: bionic
+language: scala
 jdk:
-  - oraclejdk8
-
-dist: trusty
-sudo: required
-
-addons:
-  apt:
-    update: true
-
-# Cache directory to S3 at the end of the build
+  - openjdk8
 cache:
   directories:
     - $HOME/.cache/coursier
-
-# From https://raw.githubusercontent.com/scalalandio/chimney/master/.travis.yml
-before_script:
-  - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x; fi
-
+    - $HOME/.sbt
 script:
-  - set -x &&
-    if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=trailNative/test; else testNative=""; fi &&
-    curl -L -o csbt https://github.com/coursier/sbt-launcher/releases/download/v1.2.14/csbt &&
-    chmod +x csbt &&
-    COURSIER_SBT_LAUNCHER_ADD_PLUGIN=true ./csbt ++$TRAVIS_SCALA_VERSION trailJVM/test trailJS/test $testNative
+  - sbt +test
