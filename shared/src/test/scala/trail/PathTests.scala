@@ -1,8 +1,8 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
-class PathTests extends FunSuite {
+class PathTests extends AnyFunSuite {
   test("Parse absolute URL") {
     assert(PathParser.parse("http://example.com/test") == Path("/test"))
   }

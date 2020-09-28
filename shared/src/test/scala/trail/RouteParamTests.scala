@@ -1,8 +1,9 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class RouteParamTests extends FunSpec with Matchers {
+class RouteParamTests extends AnyFunSpec with Matchers {
   import Route._
 
   it("Define route with one parameter") {

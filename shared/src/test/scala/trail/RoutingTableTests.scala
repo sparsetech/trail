@@ -1,8 +1,8 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
-class RoutingTableTests extends FunSpec with Matchers {
+class RoutingTableTests extends AnyFunSpec {
   it("Express a routing table with pattern matching") {
     val details  = Root / "details" / Arg[Int]
     val userInfo = Root / "user" / Arg[String] / Arg[Boolean]

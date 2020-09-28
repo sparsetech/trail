@@ -1,8 +1,10 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
-class UrlTests extends WordSpec with Matchers {
+class UrlTests extends AnyWordSpec with Matchers {
   "A Route" when {
     "empty" should {
       "create root" in {
@@ -108,7 +110,7 @@ class UrlTests extends WordSpec with Matchers {
   }
 }
 
-class UrlTests2 extends FunSpec with Matchers {
+class UrlTests2 extends AnyFunSpec {
   it("url() work with mandatory arguments") {
     val userInfo  = Root / "user" / Arg[String] / Arg[Boolean]
 
