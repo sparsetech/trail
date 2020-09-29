@@ -1,9 +1,9 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 import trail.Route.ParamRoute0
 
-class RouteFragmentTests extends FunSpec with Matchers {
+class RouteFragmentTests extends AnyFunSpec {
   it("Define route with fragment") {
     val route = Root $ Fragment[String]
     assert(route.route == Root)

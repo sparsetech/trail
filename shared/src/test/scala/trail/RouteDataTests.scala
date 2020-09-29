@@ -1,8 +1,9 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 
-class RouteDataTests extends WordSpec with Matchers {
+class RouteDataTests extends AnyWordSpec with Matchers {
   "A Route" when {
     "empty" should {
       "return root URL" in {

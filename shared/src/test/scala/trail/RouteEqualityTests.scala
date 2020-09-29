@@ -1,8 +1,8 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
 
-class RouteEqualityTests extends FreeSpec with Matchers {
+class RouteEqualityTests extends AnyFreeSpec {
   "A Route" - {
     "cannot equal InstantiatedRoute" in {
       val r1 = Root / "asdf"

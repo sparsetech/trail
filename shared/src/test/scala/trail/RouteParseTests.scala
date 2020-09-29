@@ -1,10 +1,11 @@
 package trail
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.util.Try
 
-class RouteParseTests extends FunSpec with Matchers {
+class RouteParseTests extends AnyFunSpec with Matchers {
   it("Parse root") {
     val root = Root
     assert(root.parseArgs("/").contains(()))
