@@ -88,7 +88,7 @@ case object Root extends Route[Unit] {
   override def url(value: Unit): String = "/"
   override def parse(path: Path): Option[(Unit, Path)] =
     if (!path.path.startsWith("/")) None
-    else Some((), path.copy(path = path.path.tail))
+    else Some(((), path.copy(path = path.path.tail)))
 }
 
 case object Elems extends Route[List[String]] {
