@@ -2,7 +2,7 @@ val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
 val Scala2_12  = "2.12.13"
 val Scala2_13  = "2.13.4"
-val ScalaTest  = "3.2.4"
+val ScalaTest  = "3.2.4-M1"
 
 val SharedSettings = Seq(
   name         := "trail",
