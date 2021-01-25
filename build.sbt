@@ -1,11 +1,8 @@
-// shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
-
 val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.12"
-val Scala2_13  = "2.13.3"
-val ScalaTest  = "3.2.2"
+val Scala2_12  = "2.12.13"
+val Scala2_13  = "2.13.4"
+val ScalaTest  = "3.2.4-M1"
 
 val SharedSettings = Seq(
   name         := "trail",
@@ -41,28 +38,23 @@ val SharedSettings = Seq(
 
 lazy val root = project.in(file("."))
   .aggregate(trail.js, trail.jvm, trail.native)
-  .settings(SharedSettings: _*)
+  .settings(SharedSettings)
   .settings(skip in publish := true)
 
 lazy val trail = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("."))
-  .settings(SharedSettings: _*)
+  .settings(SharedSettings)
   .settings(
     autoAPIMappings := true,
     apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")),
     libraryDependencies ++= Seq("freespec", "wordspec", "funspec", "funsuite", "shouldmatchers").map(module =>
       "org.scalatest" %%% s"scalatest-$module" % ScalaTest % Test
     )
-  ).nativeSettings(
-    scalaVersion       := Scala2_11,
-    crossScalaVersions := Seq(Scala2_11),
-    // See https://github.com/scalalandio/chimney/issues/78#issuecomment-419705142
-    Test / nativeLinkStubs    := true
   )
 
 lazy val manual = project.in(file("manual"))
   .dependsOn(trail.jvm)
-  .settings(SharedSettings: _*)
+  .settings(SharedSettings)
   .settings(
     name := "manual",
     publishArtifact := false,
