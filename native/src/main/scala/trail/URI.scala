@@ -25,7 +25,7 @@ object URI {
       if (c == '+') result.append(' ')
       else if (c == '%') {
         out.reset()
-        do {
+        while({
           if (i + 2 >= s.length)
             throw new IllegalArgumentException("Incomplete % sequence at: " + i)
           val d1 = Character.digit(s.charAt(i + 1), 16)
@@ -35,7 +35,8 @@ object URI {
               s"Invalid % sequence (${s.substring(i, i + 3)}) at: ${String.valueOf(i)}.")
           out.write(((d1 << 4) + d2).toByte)
           i += 3
-        } while (i < s.length && s.charAt(i) == '%')
+          (i < s.length && s.charAt(i) == '%')
+        }) { }
         result.append(out.toString("UTF-8"))
       } else {
         result.append(c)

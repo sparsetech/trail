@@ -1,15 +1,16 @@
 val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.13"
-val Scala2_13  = "2.13.4"
-val ScalaTest  = "3.2.4-M1"
+val Scala2_12  = "2.12.15"
+val Scala2_13  = "2.13.8"
+val Scala3     = "3.1.1"
+val ScalaTest  = "3.2.11"
 
 val SharedSettings = Seq(
   name         := "trail",
   organization := "tech.sparse",
 
   scalaVersion       := Scala2_13,
-  crossScalaVersions := Seq(Scala2_13, Scala2_12, Scala2_11),
+  crossScalaVersions := Seq(Scala3, Scala2_13, Scala2_12, Scala2_11),
   scalacOptions      := Seq(
     "-unchecked",
     "-deprecation",
@@ -52,6 +53,20 @@ lazy val trail = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
 
+lazy val trailNative = trail.native.settings(
+  // ScalaTest is not yet published for Scala 3 Native
+  libraryDependencies := {
+    val deps = libraryDependencies.value
+
+    if(isScala3(scalaVersion.value))
+      deps.filterNot(_.organization == "org.scalatest")
+    else deps
+  },
+  Test / test := {
+    if(isScala3(scalaVersion.value)) {} else (Test / test).value
+  }
+)
+
 lazy val manual = project.in(file("manual"))
   .dependsOn(trail.jvm)
   .settings(SharedSettings)
@@ -60,3 +75,9 @@ lazy val manual = project.in(file("manual"))
     publishArtifact := false,
     libraryDependencies += "tech.sparse" %% "leaf-notebook" % Leaf
   )
+
+def isScala3(ver: String) = 
+  CrossVersion.partialVersion(ver) match {
+    case Some((3, _)) => true
+    case _ => false
+  }
