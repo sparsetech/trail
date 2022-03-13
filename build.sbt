@@ -11,11 +11,15 @@ val SharedSettings = Seq(
 
   scalaVersion       := Scala2_13,
   crossScalaVersions := Seq(Scala3, Scala2_13, Scala2_12, Scala2_11),
-  scalacOptions      := Seq(
-    "-unchecked",
-    "-deprecation",
-    "-encoding", "utf8"
-  ),
+  scalacOptions      := {
+    // Preserve -scalajs flag used by Scala.js on Scala 3
+    scalacOptions.value.filter(_ == "-scalajs") ++ 
+    Seq(
+      "-unchecked",
+      "-deprecation",
+      "-encoding", "utf8"
+    )
+  },
 
   pomExtra :=
     <url>https://github.com/sparsetech/trail</url>
