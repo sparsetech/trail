@@ -3,7 +3,7 @@ val Scala2_11  = "2.11.12"
 val Scala2_12  = "2.12.15"
 val Scala2_13  = "2.13.8"
 val Scala3     = "3.1.1"
-val ScalaTest  = "3.2.11"
+val ScalaTest  = "3.2.12"
 
 val SharedSettings = Seq(
   name         := "trail",
@@ -56,20 +56,6 @@ lazy val trail = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "org.scalatest" %%% s"scalatest-$module" % ScalaTest % Test
     )
   )
-
-lazy val trailNative = trail.native.settings(
-  // ScalaTest is not yet published for Scala 3 Native
-  libraryDependencies := {
-    val deps = libraryDependencies.value
-
-    if(isScala3(scalaVersion.value))
-      deps.filterNot(_.organization == "org.scalatest")
-    else deps
-  },
-  Test / test := {
-    if(isScala3(scalaVersion.value)) {} else (Test / test).value
-  }
-)
 
 lazy val manual = project.in(file("manual"))
   .dependsOn(trail.jvm)
