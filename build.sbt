@@ -1,20 +1,25 @@
 val Leaf       = "0.1.0"
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.13"
-val Scala2_13  = "2.13.4"
-val ScalaTest  = "3.2.4-M1"
+val Scala2_12  = "2.12.15"
+val Scala2_13  = "2.13.8"
+val Scala3     = "3.1.1"
+val ScalaTest  = "3.2.12"
 
 val SharedSettings = Seq(
   name         := "trail",
   organization := "tech.sparse",
 
   scalaVersion       := Scala2_13,
-  crossScalaVersions := Seq(Scala2_13, Scala2_12, Scala2_11),
-  scalacOptions      := Seq(
-    "-unchecked",
-    "-deprecation",
-    "-encoding", "utf8"
-  ),
+  crossScalaVersions := Seq(Scala3, Scala2_13, Scala2_12, Scala2_11),
+  scalacOptions      := {
+    // Preserve -scalajs flag used by Scala.js on Scala 3
+    scalacOptions.value.filter(_ == "-scalajs") ++ 
+    Seq(
+      "-unchecked",
+      "-deprecation",
+      "-encoding", "utf8"
+    )
+  },
 
   pomExtra :=
     <url>https://github.com/sparsetech/trail</url>
@@ -60,3 +65,9 @@ lazy val manual = project.in(file("manual"))
     publishArtifact := false,
     libraryDependencies += "tech.sparse" %% "leaf-notebook" % Leaf
   )
+
+def isScala3(ver: String) = 
+  CrossVersion.partialVersion(ver) match {
+    case Some((3, _)) => true
+    case _ => false
+  }
